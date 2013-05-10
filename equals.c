@@ -4,7 +4,7 @@
 /*
 ho provato ad RI-aggiungere un commento
 		BY EMPY92
-capu lavora pls
+risolto
 */
 #include <stdio.h>
 #include <string.h>
