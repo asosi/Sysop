@@ -2,7 +2,7 @@
 	PROVA PROVA
 */ 
 /*
-ho provato ad aggiungere un commento
+ho provato ad RI-aggiungere un commento
 		BY EMPY92
 */
 #include <stdio.h>
