@@ -5,11 +5,11 @@ int dim = 512;//cosa mettiamo? ho scelto 512, accetto consigli
 
 int main (int argc,char* argv[]){
 
-	if(argc < 3 || argc > 3){
-
-		printf("Errore, passare due file o due cartelle!\n");
-		}else{
-		
+	if(argc < 3)
+		printf("Mancano argomenti! Passare due file o due cartelle!\n");
+	else if(argc > 3)
+		printf("Troppi argomenti! Passare due file o due cartelle!\n");
+	else{
 		int first = open(argv[1],O_RDONLY);
 		int second = open(argv[2],O_RDONLY);
 
@@ -19,7 +19,6 @@ int main (int argc,char* argv[]){
 		char riga1[dim];
 		char riga2[dim];
 		int i=0; //usata per ciclare
-		//while((fine = getline(&rigatestuale,&dim,second))!=EOF){
 		while((canread1 = read(second,riga1,dim))>0 && (canread2 = read(first,riga2,dim))>0){
 			int y;//usata per il ciclo
 			for(y=0; y<dim; y++){
@@ -27,7 +26,6 @@ int main (int argc,char* argv[]){
 					allequal = 0;
 			}
 			i++;
-
 		}
 
 		close(first);
