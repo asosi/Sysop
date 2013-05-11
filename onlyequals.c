@@ -18,6 +18,7 @@ int main (int argc,char* argv[]){
 		int allequal = 1;
 		char riga1[dim];
 		char riga2[dim];
+		int ci;
 		int i=0; //usata per ciclare
 		while((canread1 = read(second,riga1,dim))>0 && (canread2 = read(first,riga2,dim))>0){
 			int y;//usata per il ciclo
@@ -26,6 +27,7 @@ int main (int argc,char* argv[]){
 					allequal = 0;
 			}
 			i++;
+			ci = i;
 		}
 
 		close(first);
@@ -35,7 +37,7 @@ int main (int argc,char* argv[]){
 			printf("I file sono uguali\n");
 			return 0;		
 		}else{ // se allequal vale 0 sono tutti uguali e ritorna 1
-			printf("I file sono diversi\n");
+			printf("I file sono diversi, ho ciclato %i volte\n", ci);
 			return 1;
 		}
 	}
