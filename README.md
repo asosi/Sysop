@@ -47,9 +47,9 @@ plive
 ######################################################################
 
 Note:
-• Obbligatorio usare la system call getopt
-• Si possono usare solo le system call, all’interno del codice sorgente non e’ ammesso
-l’utilizzo di comandi gia’ disponibili nel sistema GNU/Linux in forma di codice oggetto
+• Obbligatorio usare la system call getopt.
+• Si possono usare solo le system call, all’interno del codice sorgente non e’ ammesso.
+l’utilizzo di comandi gia’ disponibili nel sistema GNU/Linux in forma di codice oggetto.
 compilato
 • Tutti i processi generati non devono produrre processi zombie
 • Ogni utility sviluppata deve produrre il corretto comportamento a video e, allo stesso
