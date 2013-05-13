@@ -46,7 +46,7 @@ int main (int argc,char* argv[]){
 			while((canread1 = read(second,riga1,dim))>0 && (canread2 = read(first,riga2,dim))>0){
 				int y;//usata per il ciclo
 				for(y=0; y<dim; y++){
-					printf("f1: %c, f2: %c\n", riga1[y], riga2[y]);
+					//printf("f1: %c, f2: %c\n", riga1[y], riga2[y]);
 					if(riga1[y] != riga2[y]){
 						allequal = 0;
 					}
