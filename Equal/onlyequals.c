@@ -26,7 +26,6 @@ int main (int argc,char* argv[]){
 		
 		int allequal = 1; //serve per vedere se  i 2 file sono uguali
 
-		int ci;
 		if(first==NOT_EXIST){
 			perror(argv[1]); //ritorno errore argv[1] inesistente
 			//exit
@@ -37,22 +36,52 @@ int main (int argc,char* argv[]){
 		}
 		if(first!=NOT_EXIST && second!= NOT_EXIST){
 
-			char riga1[dim];
-			char riga2[dim];
+			char riga1[1];
+			char riga2[1];
 		
 			int i=0; //usata per ciclare
 
-			reset(riga1,riga2);
-			while((canread1 = read(second,riga1,dim))>0 && (canread2 = read(first,riga2,dim))>0){
-				int y;//usata per il ciclo
-				for(y=0; y<dim; y++){
-					printf("f1: %c, f2: %c\n", riga1[y], riga2[y]);
-					if(riga1[y] != riga2[y]){
-						allequal = 0;
-					}
+			char* diff1 = (char*)malloc(sizeof(char));
+			char* diff2 = (char*)malloc(sizeof(char));
+
+			// :)
+
+			//  X  X XXXX X    X    XXXX XXXX
+			//  X  X X    X    X    X  X X
+			//  XXXX XXX  X    X    XXXX XXXX
+			//  X  X X    X    X    X  X    X
+			//  X  X XXXX XXXX XXXX X  X XXXX
+			int h =0;
+			while((canread1 = read(first,riga1,1))>0 && (canread2 = read(second,riga2,1))>0){
+				//printf("f1: %c, f2: %c\n", riga1[y], riga2[y]);
+				if(riga1[0] != riga2[0]){
+					allequal = 0; //setto non diversi
+					diff1 = (char*)realloc(diff1,sizeof(char)*(h+1));
+					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
+					diff1[h] = riga1[0];
+					diff2[h] = riga2[0];
+					h++;
 				}
-				i++;
-				ci = i;
+			}
+			if(canread1>0){
+					diff1 = (char*)realloc(diff1,sizeof(char)*(h+1));
+					diff1[h] = riga1[0];
+					h++;
+				while((canread1 = read(first,riga1,1))>0){
+					diff1 = (char*)realloc(diff1,sizeof(char)*(h+1));
+					diff1[h] = riga1[0];
+					h++;
+				}
+			}
+			else if(canread2>0){
+					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
+					diff2[h] = riga2[0];
+					h++;
+				while((canread2 = read(second,riga2,1))>0){
+					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
+					diff2[h] = riga2[0];
+					h++;
+				}
 			}
 			close(first);
 			close(second);
@@ -61,16 +90,12 @@ int main (int argc,char* argv[]){
 				return (0);	
 			}else{ // se allequal vale 0 sono tutti uguali e ritorna 1
 				printf("I file sono diversi\n");
+					printf("------------------------------------------------%s------------------------------------------------\n%s\n",argv[1],diff1);
+					printf("------------------------------------------------%s------------------------------------------------\n%s\n",argv[2],diff2);
+					free(diff1);
+					free(diff2);
 				return (1);
 			}
 		}
-	}
-}
-
-void reset(char* riga1, char*riga2){
-	int i;
-	for(i=0; i<dim; i++){
-		riga1[i] =0;
-		riga2[i] =0;
 	}
 }
