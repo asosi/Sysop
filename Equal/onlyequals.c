@@ -41,7 +41,6 @@ int main (int argc,char* argv[]){
 		
 			int i=0; //usata per ciclare
 
-<<<<<<< HEAD
 			char* diff1 = (char*)malloc(sizeof(char));
 			char* diff2 = (char*)malloc(sizeof(char));
 
@@ -82,16 +81,6 @@ int main (int argc,char* argv[]){
 					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
 					diff2[h] = riga2[0];
 					h++;
-=======
-			reset(riga1,riga2);
-			while((canread1 = read(second,riga1,dim))>0 && (canread2 = read(first,riga2,dim))>0){
-				int y;//usata per il ciclo
-				for(y=0; y<dim; y++){
-					//printf("f1: %c, f2: %c\n", riga1[y], riga2[y]);
-					if(riga1[y] != riga2[y]){
-						allequal = 0;
-					}
->>>>>>> b27e6583f508250fb8b5dc8878131ebe043226a1
 				}
 			}
 			close(first);
