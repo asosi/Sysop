@@ -20,19 +20,9 @@ void printdir(char *dir, int depth){
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
 
-        //controllo se ci sono elementi .<nomefile> (nascosti) e li ignoro
-        if(entry->d_name[0] == '.'){
-            continue;
-        }
 
-        if(S_ISDIR(statbuf.st_mode)) {
-            // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
-            if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
-            	continue;
-            }
-
-            // controllo se ci sono directory che iniziano con lettere e li ignoro
-            if(entry->d_name[0] == 'a' || entry->d_name[0] == 'b' || entry->d_name[0] == 'c' || entry->d_name[0] == 'd' || entry->d_name[0] == 'e' || entry->d_name[0] == 'f' || entry->d_name[0] == 'g' || entry->d_name[0] == 'h' || entry->d_name[0] == 'i' || entry->d_name[0] == 'j' || entry->d_name[0] == 'k' || entry->d_name[0] == 'l' || entry->d_name[0] == 'm' || entry->d_name[0] == 'n' || entry->d_name[0] == 'o' || entry->d_name[0] == 'p' || entry->d_name[0] == 'q' || entry->d_name[0] == 'r' || entry->d_name[0] == 's' || entry->d_name[0] == 't' || entry->d_name[0] == 'u' || entry->d_name[0] == 'v' || entry->d_name[0] == 'w' || entry->d_name[0] == 'x' || entry->d_name[0] == 'y' || entry->d_name[0] == 'z'
+        // controllo se ci sono elementi che iniziano con lettere o elementi .<nomefile> (nascosti) e li ignoro
+            if(entry->d_name[0] == '.' || entry->d_name[0] == 'a' || entry->d_name[0] == 'b' || entry->d_name[0] == 'c' || entry->d_name[0] == 'd' || entry->d_name[0] == 'e' || entry->d_name[0] == 'f' || entry->d_name[0] == 'g' || entry->d_name[0] == 'h' || entry->d_name[0] == 'i' || entry->d_name[0] == 'j' || entry->d_name[0] == 'k' || entry->d_name[0] == 'l' || entry->d_name[0] == 'm' || entry->d_name[0] == 'n' || entry->d_name[0] == 'o' || entry->d_name[0] == 'p' || entry->d_name[0] == 'q' || entry->d_name[0] == 'r' || entry->d_name[0] == 's' || entry->d_name[0] == 't' || entry->d_name[0] == 'u' || entry->d_name[0] == 'v' || entry->d_name[0] == 'w' || entry->d_name[0] == 'x' || entry->d_name[0] == 'y' || entry->d_name[0] == 'z'
                  || entry->d_name[0] == 'A'
                  || entry->d_name[0] == 'B'
                  || entry->d_name[0] == 'C'
@@ -62,6 +52,12 @@ void printdir(char *dir, int depth){
                 continue;
             }
 
+        if(S_ISDIR(statbuf.st_mode)) {
+            // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
+            if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
+            	continue;
+            }
+
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
             printf("%*s%s/\n",depth,"",entry->d_name);
 
@@ -79,7 +75,7 @@ int main()
 {
     printf("Sto guardando nella directory:\n");
     // specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/
-    printdir("/Users/Andrea/",0);
+    printdir("//",0);
     printf("FINE!\n");
     exit(0);
 }
