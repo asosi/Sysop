@@ -35,10 +35,10 @@ void printdir(char *dir, int depth){
             printf("%*s%s/\n",depth,"",entry->d_name);
 
             // Ricorsione con tabulazione
-            printdir(entry->d_name,depth+4);
+            //printdir(entry->d_name,depth+4);
         }
         // stampa i file contenuti nel path dato e nelle sottodirectory
-        else printf("%*s%s\n",depth,"",entry->d_name,"bo");
+        else printf("%*s%s\n",depth,"",entry->d_name);
     }
     chdir("..");
     closedir(dp);
