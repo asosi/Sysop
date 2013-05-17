@@ -11,7 +11,7 @@ void printdir(char *dir, int depth){
     struct dirent *entry;
     struct stat statbuf;
     if((dp = opendir(dir)) == NULL) {
-        //fprintf(stderr,"cannot open directory: %s\n", dir);
+        // fprintf(stderr,"cannot open directory: %s\n", dir);
         perror(dir);
         return;
     }
@@ -19,18 +19,26 @@ void printdir(char *dir, int depth){
 
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
-        if(S_ISDIR(statbuf.st_mode)) {
+        
+        // controllo se ci sono file .<nomefile> (nascosti) e li ignoro
+        if(entry->d_name[0] == '.'){
+            continue;
+        }
 
-            /* Cerca una directory e ignora . e .. */
-            if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0){
+        if(S_ISDIR(statbuf.st_mode)) {
+            // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
+            if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
             	continue;
             }
 
+            // stampa le directory contenute nel path dato
             printf("%*s%s/\n",depth,"",entry->d_name);
-            /* Ricorsione con tabulazione */
+
+            // Ricorsione con tabulazione
             printdir(entry->d_name,depth+4);
         }
-        else printf("%*s%s\n",depth,"",entry->d_name);
+        // stampa i file contenuti nel path dato e nelle sottodirectory
+        else printf("%*s%s\n",depth,"",entry->d_name,"bo");
     }
     chdir("..");
     closedir(dp);
@@ -38,7 +46,7 @@ void printdir(char *dir, int depth){
 
 int main()
 {
-    printf("Sto guardando nella directory: ./:\n");
+    printf("Sto guardando nella directory:\n");
     printdir("/Users/Andrea/Desktop",0);
     printf("FINE!\n");
     exit(0);
