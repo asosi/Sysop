@@ -20,7 +20,7 @@ void printdir(char *dir, int depth){
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
 
-        // controllo se ci sono file .<nomefile> (nascosti) e li ignoro
+        //controllo se ci sono elementi .<nomefile> (nascosti) e li ignoro
         if(entry->d_name[0] == '.'){
             continue;
         }
@@ -31,13 +31,44 @@ void printdir(char *dir, int depth){
             	continue;
             }
 
-            // stampa le directory contenute nel path dato
+            // controllo se ci sono directory che iniziano con lettere e li ignoro
+            if(entry->d_name[0] == 'a' || entry->d_name[0] == 'b' || entry->d_name[0] == 'c' || entry->d_name[0] == 'd' || entry->d_name[0] == 'e' || entry->d_name[0] == 'f' || entry->d_name[0] == 'g' || entry->d_name[0] == 'h' || entry->d_name[0] == 'i' || entry->d_name[0] == 'j' || entry->d_name[0] == 'k' || entry->d_name[0] == 'l' || entry->d_name[0] == 'm' || entry->d_name[0] == 'n' || entry->d_name[0] == 'o' || entry->d_name[0] == 'p' || entry->d_name[0] == 'q' || entry->d_name[0] == 'r' || entry->d_name[0] == 's' || entry->d_name[0] == 't' || entry->d_name[0] == 'u' || entry->d_name[0] == 'v' || entry->d_name[0] == 'w' || entry->d_name[0] == 'x' || entry->d_name[0] == 'y' || entry->d_name[0] == 'z'
+                 || entry->d_name[0] == 'A'
+                 || entry->d_name[0] == 'B'
+                 || entry->d_name[0] == 'C'
+                 || entry->d_name[0] == 'D'
+                 || entry->d_name[0] == 'E'
+                 || entry->d_name[0] == 'F'
+                 || entry->d_name[0] == 'G'
+                 || entry->d_name[0] == 'H'
+                 || entry->d_name[0] == 'I'
+                 || entry->d_name[0] == 'J'
+                 || entry->d_name[0] == 'K'
+                 || entry->d_name[0] == 'L'
+                 || entry->d_name[0] == 'M'
+                 || entry->d_name[0] == 'N'
+                 || entry->d_name[0] == 'O'
+                 || entry->d_name[0] == 'P'
+                 || entry->d_name[0] == 'Q'
+                 || entry->d_name[0] == 'R'
+                 || entry->d_name[0] == 'S'
+                 || entry->d_name[0] == 'T'
+                 || entry->d_name[0] == 'U'
+                 || entry->d_name[0] == 'V'
+                 || entry->d_name[0] == 'W'
+                 || entry->d_name[0] == 'X'
+                 || entry->d_name[0] == 'Y'
+                 || entry->d_name[0] == 'Z'){
+                continue;
+            }
+
+            // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
             printf("%*s%s/\n",depth,"",entry->d_name);
 
             // Ricorsione con tabulazione
             //printdir(entry->d_name,depth+4);
         }
-        // stampa i file contenuti nel path dato e nelle sottodirectory
+        // stampa i file contenuti nel path dato
         else printf("%*s%s\n",depth,"",entry->d_name);
     }
     chdir("..");
@@ -47,8 +78,8 @@ void printdir(char *dir, int depth){
 int main()
 {
     printf("Sto guardando nella directory:\n");
-    // specificare percorso, ora metto questo per provare poi si dovrà mettere /proc 
-    printdir("/proc/",0);
+    // specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/
+    printdir("/Users/Andrea/",0);
     printf("FINE!\n");
     exit(0);
 }
