@@ -19,7 +19,7 @@ void printdir(char *dir, int depth){
 
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
-        
+
         // controllo se ci sono file .<nomefile> (nascosti) e li ignoro
         if(entry->d_name[0] == '.'){
             continue;
@@ -47,7 +47,8 @@ void printdir(char *dir, int depth){
 int main()
 {
     printf("Sto guardando nella directory:\n");
-    printdir("/Users/Andrea/Desktop",0);
+    // specificare percorso, ora metto questo per provare poi si dovrà mettere /proc 
+    printdir("/proc/",0);
     printf("FINE!\n");
     exit(0);
 }
