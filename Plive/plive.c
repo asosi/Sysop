@@ -4,10 +4,13 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <errno.h>
+
 
 void printdir(char *dir, int depth){
 
-    DIR *dp;
+    DIR *dp, *proc;
     struct dirent *entry;
     struct stat statbuf;
     if((dp = opendir(dir)) == NULL) {
@@ -16,9 +19,6 @@ void printdir(char *dir, int depth){
         return;
     }
     chdir(dir);
-
-    // uso per vettore
-    int h = 0;
 
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
@@ -59,7 +59,7 @@ void printdir(char *dir, int depth){
             // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
             if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
             	continue;
-            }  
+            }
 
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
             printf("%*s%s/\n",depth,"",entry->d_name);
@@ -68,7 +68,7 @@ void printdir(char *dir, int depth){
             //printdir(entry->d_name,depth+4);
         }
         // stampa i file contenuti nel path dato
-        else printf("%*s%s\n",depth,"",entry->d_name);
+        //else printf("%*s%s\n",depth,"",entry->d_name);
     }
     chdir("..");
     closedir(dp);
