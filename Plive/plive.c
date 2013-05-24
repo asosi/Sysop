@@ -64,6 +64,14 @@ void printdir(char *dir, int depth){
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
             printf("%*s%s/\n",depth,"",entry->d_name);
 
+            //concateno la stringa della dir con la cartella per creare il path di ogni cartella dei proc
+            char new_path[256];
+            new_path[0] = '\0';   // ensures the memory is an empty string
+            strcat(new_path,dir);
+            strcat(new_path,entry->d_name);
+            printf("%s\n",new_path);
+
+
             // Ricorsione con tabulazione
             //printdir(entry->d_name,depth+4);
         }
@@ -77,7 +85,7 @@ void printdir(char *dir, int depth){
 int main()
 {
     // IMPORTANTE!!! specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/ 
-    printdir("/Users/Andrea/Desktop",0);
+    printdir("/Users/Andrea/Desktop/",0);
     printf("FINE!\n");
     exit(0);
 }
