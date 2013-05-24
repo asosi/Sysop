@@ -19,7 +19,6 @@ void printdir(char *dir, int depth){
 
     // uso per vettore
     int h = 0;
-    intptr_t* proc = (intptr_t*)malloc(sizeof(intptr_t));
 
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
@@ -60,13 +59,7 @@ void printdir(char *dir, int depth){
             // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
             if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
             	continue;
-            }
-
-            //intptr_t* proc = (intptr_t*)malloc(sizeof(intptr_t));
-            proc = (intptr_t*)realloc(proc,sizeof(intptr_t)*(h+1));
-            intptr_t c = (intptr_t)entry->d_name;
-            proc[0] = c;
-            h++;      
+            }  
 
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
             printf("%*s%s/\n",depth,"",entry->d_name);
@@ -76,12 +69,6 @@ void printdir(char *dir, int depth){
         }
         // stampa i file contenuti nel path dato
         else printf("%*s%s\n",depth,"",entry->d_name);
-
-        //stampo vettore con i PID
-        int i;
-        for(i=0; i<h; i++){
-            printf("[%ld]\n", proc[i]);
-        }
     }
     chdir("..");
     closedir(dp);

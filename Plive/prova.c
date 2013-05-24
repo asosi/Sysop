@@ -80,7 +80,7 @@ void printdir(char *dir, int depth){
         //stampo vettore con i PID
         int i;
         for(i=0; i<h; i++){
-            printf("[%ld]\n", proc[i]);
+            printf("[%d]\n", (int)proc[i]);
         }
     }
     chdir("..");
