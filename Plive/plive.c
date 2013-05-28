@@ -120,8 +120,6 @@ void proc(char *path){
 
                 //int let = open(entry->d_name, O_RDONLY);
                 //while(leggo = read(let,riga1,1))>0
-            }else{
-                printf("%s\n", "status file not found!");
             }
         }
     }
