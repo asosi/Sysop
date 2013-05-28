@@ -111,11 +111,11 @@ void proc(char *path){
         if(S_ISDIR(statbuf.st_mode)){
             continue;
         }else{
-            printf("%s\n",entry->d_name);
+            printf("\t%s\n",entry->d_name);
 
             //controllo se nella directory in cui mi trovo esiste un file chiamato "status"
             if(strcmp("status",entry->d_name) == 0){
-                printf("%s\n", "OK c'è il file status!");
+                printf("%s\n", "######## OK c'è il file status! ########");
 
 
                 //int let = open(entry->d_name, O_RDONLY);
