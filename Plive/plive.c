@@ -89,6 +89,10 @@ void printdir(char *dir, int depth){
 
 void proc(char *path){
 
+
+    FILE *punfile;
+    char parola[1024];
+
     DIR *des;
     struct dirent *entry;
     struct stat statbuf;
@@ -111,15 +115,29 @@ void proc(char *path){
         if(S_ISDIR(statbuf.st_mode)){
             continue;
         }else{
+            //stampo ogni elemento contenuto nella directory che non sia una directory
             printf("\t%s\n",entry->d_name);
 
             //controllo se nella directory in cui mi trovo esiste un file chiamato "status"
             if(strcmp("status",entry->d_name) == 0){
-                printf("%s\n", "######## OK c'è il file status! ########");
+                printf("%s\n", "######## OK, c'è il file status! ########");
 
 
-                //int let = open(entry->d_name, O_RDONLY);
-                //while(leggo = read(let,riga1,1))>0
+                //############################ ENTRO FILE STATUS ############################
+                // apro il file status in lettura
+                punfile = fopen("status", "r");
+
+                if(!punfile){
+                    printf("%s\n", "Errore apertura file 'status'!");
+                }
+
+                //fgets mi prende la riga del file
+                while(fgets(parola, 1000, punfile)!=NULL){
+                    printf("%s\n",parola);
+                }
+
+                fclose(punfile);
+                //###########################################################################
             }
         }
     }
