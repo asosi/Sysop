@@ -8,16 +8,18 @@
 #include <errno.h>
 
 void proc(char *path);
-void printdir(char *dir, int depth){
+
+
+void printdir(char *dir){
 
     DIR *dp;
     struct dirent *entry;
     struct stat statbuf;
     if((dp = opendir(dir)) == NULL) {
-        // fprintf(stderr,"cannot open directory: %s\n", dir);
         perror(dir);
         return;
     }
+
     chdir(dir);
 
     while((entry = readdir(dp)) != NULL) {
@@ -62,7 +64,7 @@ void printdir(char *dir, int depth){
             }
 
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
-            printf("%*s%s/\n",depth,"",entry->d_name);
+            printf("%s/\n",entry->d_name);
 
             
             //concateno la stringa della dir con la cartella per creare il path di ogni cartella dei proc
@@ -71,18 +73,13 @@ void printdir(char *dir, int depth){
             strcat(new_path,dir);
             strcat(new_path,entry->d_name);
             strcat(new_path,"/");
-            //printf("%s\n",new_path);
 
             //chiamo la funzione che entra nella sottodirectory del processo
             proc(new_path);
-
-            // Ricorsione con tabulazione
-            //printdir(entry->d_name,depth+4);
         }
         // stampa i file contenuti nel path dato
-        else printf("%*s%s\n",depth,"",entry->d_name);
+        else printf("%s\n",entry->d_name);
     }
-    chdir("..");
     closedir(dp);
 }
 
@@ -93,14 +90,24 @@ void proc(char *path){
     FILE *punfile;
     char parola[1024];
 
+    //struct per contenere dati processo
+    struct datiproc{
+      char* state;
+      char* name;
+      char* pid;
+      char* ppid;
+      char* vmrss;
+      char* vmsize;
+    };
+
     DIR *des;
     struct dirent *entry;
     struct stat statbuf;
     if((des = opendir(path)) == NULL) {
-        // fprintf(stderr,"cannot open directory: %s\n", path);
         perror(path);
         return;
     }
+
     chdir(path);
 
     while((entry = readdir(des)) != NULL) {
@@ -131,25 +138,56 @@ void proc(char *path){
                     printf("%s\n", "Errore apertura file 'status'!");
                 }
 
-                //fgets mi prende la riga del file
-                while(fgets(parola, 1000, punfile)!=NULL){
-                    printf("%s\n",parola);
+                struct datiproc pro;
+                // fscanf mi prende una parola alla volta del file
+                while(!feof(punfile)){
+
+                    fscanf(punfile,"%s", parola);
+
+
+                    if(strcmp("State:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        pro.state = parola;
+
+                    }else if(strcmp("Pid:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        pro.pid = parola;
+
+                    }else if(strcmp("PPid:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        pro.ppid = parola;
+                        
+                    }else if(strcmp("Name:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        pro.name = parola;
+                        
+                    }else if(strcmp("VmRSS:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        pro.vmrss = parola;
+                        
+                    }else if(strcmp("VmSize:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        pro.vmsize = parola;         
+                    }
                 }
 
+                printf("PROVO a stampare lo state del processo: %s\n", pro.state);
+
                 fclose(punfile);
+
                 //###########################################################################
             }
         }
     }
 
-    chdir("..");
     closedir(des);
 }
 
 int main()
 {
     // IMPORTANTE!!! specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/ 
-    printdir("/Users/Andrea/Desktop/",0);
+    printdir("/Users/Andrea/Desktop/");
     printf("FINE!\n");
-    exit(0);
 }
+
+
