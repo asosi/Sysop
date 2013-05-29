@@ -64,7 +64,7 @@ void printdir(char *dir){
             }
 
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
-            printf("%s/\n",entry->d_name);
+            //printf("%s/\n",entry->d_name);
 
             
             //concateno la stringa della dir con la cartella per creare il path di ogni cartella dei proc
@@ -78,7 +78,7 @@ void printdir(char *dir){
             proc(new_path);
         }
         // stampa i file contenuti nel path dato
-        else printf("%s\n",entry->d_name);
+        //else printf("%s\n",entry->d_name);
     }
     closedir(dp);
 }
@@ -101,7 +101,7 @@ void proc(char *path){
     };
 
     DIR *des;
-    struct datiproc pro;
+    struct datiproc* pro;
     struct dirent *entry;
     struct stat statbuf;
     if((des = opendir(path)) == NULL) {
@@ -124,77 +124,76 @@ void proc(char *path){
             continue;
         }else{
             //stampo ogni elemento contenuto nella directory che non sia una directory
-            printf("\t%s\n",entry->d_name);
+            //printf("\t%s\n",entry->d_name);
 
             //controllo se nella directory in cui mi trovo esiste un file chiamato "status"
             if(strcmp("status",entry->d_name) == 0){
-                printf("%s\n", "######## OK, c'è il file status! ########");
-
 
                 //############################ ENTRO FILE STATUS ############################
                 // apro il file status in lettura
                 punfile = fopen("status", "r");
 
+                //inizializzo pro
+                pro = malloc(sizeof(struct datiproc));
+
+                //inizializzo array "elenco" di struct
+                struct datiproc** elenco = malloc(sizeof(struct datiproc*));
+
                 if(!punfile){
                     printf("%s\n", "Errore apertura file 'status'!");
                 }
 
-                
+                int n = 0;
                 // fscanf mi prende una parola alla volta del file
                 while(!feof(punfile)){
 
                     fscanf(punfile,"%s", parola);
-                    //printf("%s\n", parola);
 
                     
                     if(strcmp("State:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        //printf("1 %s\n",parola);
-                        strcpy(pro.state, parola);
+                        strcpy(pro->state, parola);
 
                     }
                     if(strcmp("Pid:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        //printf("2 %s\n",parola);
-                        strcpy(pro.pid, parola);
+                        strcpy(pro->pid, parola);
 
                     }
                     if(strcmp("PPid:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        //printf("3 %s\n",parola);
-                        strcpy(pro.ppid, parola);
+                        strcpy(pro->ppid, parola);
                         
                     }
                     if(strcmp("Name:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        //printf("4 %s\n",parola);
-                        strcpy(pro.name, parola);
+                        strcpy(pro->name, parola);
                         
                     }
                     if(strcmp("VmRSS:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        //printf("5 %s\n",parola);
-                        strcpy(pro.vmrss, parola);                        
+                        strcpy(pro->vmrss, parola);                        
                     }
                     if(strcmp("VmSize:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        //printf("6 %s\n",parola);
-                        strcpy(pro.vmsize, parola);        
+                        strcpy(pro->vmsize, parola);        
                     }
-                    
-                    
+                    //aggiungo le struct all'array
+                    elenco[n] = malloc(sizeof(struct datiproc));
+                    elenco[n] = pro;
+                    n++;
+                    elenco = realloc(elenco,(sizeof(struct datiproc*)*(n+1))); 
                 }
 
+                printf("#####################%s#####################\n", pro->pid);
+                printf("Stato processo: %s\n", pro->state);
+                printf("Nome processo: %s\n", pro->name);
+                printf("Pid processo: %s\n", pro->pid);
+                printf("PPid processo: %s\n", pro->ppid);
+                printf("VmSize processo: %s\n", pro->vmsize);
+                printf("VmRSS processo: %s\n", pro->vmrss);
+                printf("##########################################\n");
                 
-                printf("PROVO a stampare lo state del processo: %s\n", pro.state);
-                printf("PROVO a stampare lo name del processo: %s\n", pro.name);
-                printf("PROVO a stampare lo pid del processo: %s\n", pro.pid);
-                printf("PROVO a stampare lo ppid del processo: %s\n", pro.ppid);
-                printf("PROVO a stampare lo VmSize del processo: %s\n", pro.vmsize);
-                printf("PROVO a stampare lo vmrss del processo: %s\n", pro.vmrss);
-                
-
-
                 fclose(punfile);
 
                 //###########################################################################
@@ -209,7 +208,7 @@ int main()
 {
     // IMPORTANTE!!! specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/ 
     printdir("/Users/Andrea/Desktop/");
-    printf("FINE!\n");
+    //printf("FINE!\n");
 }
 
 
