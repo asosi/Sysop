@@ -13,7 +13,6 @@ void copia_file(char* argv1, char* argv2);
 void copia_cartella(char *argv[], struct dirent *entry, DIR *dp);
 void CreateFolder(char *dirname);
 
-
 int main(int argc, char *argv[]) {
 
 if(argc < 3){
@@ -25,21 +24,25 @@ if(argc < 3){
       //exit
    else{
 
-      DIR *dp;
-      struct dirent *entry;
-      struct stat statbuf;
+	   DIR *dp;
+	   struct dirent *entry;
+	   struct stat statbuf;
 
-      if((dp = opendir(argv[1])) == NULL) {
-         copia_file(argv[1], argv[2]);
-         return;
-      }
-      entry = readdir(dp);
-      lstat(entry->d_name,&statbuf);
+	   if((dp = opendir(argv[1])) == NULL) {
+	        copia_file(argv[1], argv[2]);
+	        return;
+	   }
 
-      if(S_ISDIR(statbuf.st_mode)) 
+	   entry = readdir(dp);
+	   lstat(entry->d_name,&statbuf);
+
+	   if(!S_ISDIR(statbuf.st_mode)){
+         CreateFolder(argv[2]);
          copia_cartella(argv,entry,dp);
+      }
+
    }
-return 0;
+   return 0;
 }
 
 void copia_file(char* argv1, char* argv2){   
@@ -63,30 +66,32 @@ void copia_file(char* argv1, char* argv2){
 }
 
 void copia_cartella(char *argv[], struct dirent *entry, DIR *dp){
-   CreateFolder(argv[2]);
+   
+   char s [1000];
+
    chdir(argv[1]);
-
+   
    printf("è una cartella\n");
+   printf("%s\n",getcwd(s,1000) );
 
-    while((entry = readdir(dp)) != NULL) {
-
-      printf("%s",entry->d_name);
-      copia_file(entry->d_name,argv[2]);
-    }
+   while((entry = readdir(dp)) != NULL) {
+      printf("file: %s\n",entry->d_name);
+      if(strcmp(".",entry->d_name)!=0 && strcmp("..",entry->d_name)!=0 && entry->d_name[0] !='.')
+      {
+         printf("%s\n",entry->d_name);
+         copia_file(entry->d_name,argv[2]);
+      }
+   }
+   printf("fine while\n");
 }
 
 void CreateFolder(char *dirname){
+
    int check;
-   check = mkdir(dirname,S_IFDIR);
+   check = mkdir(dirname,0777);
 
    if (!check)
    printf("Directory created\n");
-   else
-   {
-      printf("Unable to create directory\n");
-      exit(1);
-   }
 
-   system("dir/p");
 }
 
