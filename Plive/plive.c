@@ -92,15 +92,16 @@ void proc(char *path){
 
     //struct per contenere dati processo
     struct datiproc{
-      char* state;
-      char* name;
-      char* pid;
-      char* ppid;
-      char* vmrss;
-      char* vmsize;
+      char state[10];
+      char name[256];
+      char pid[100];
+      char ppid[100];
+      char vmrss[1000];
+      char vmsize[1000];
     };
 
     DIR *des;
+    struct datiproc pro;
     struct dirent *entry;
     struct stat statbuf;
     if((des = opendir(path)) == NULL) {
@@ -138,40 +139,61 @@ void proc(char *path){
                     printf("%s\n", "Errore apertura file 'status'!");
                 }
 
-                struct datiproc pro;
+                
                 // fscanf mi prende una parola alla volta del file
                 while(!feof(punfile)){
 
                     fscanf(punfile,"%s", parola);
+                    //printf("%s\n", parola);
 
-
+                    
                     if(strcmp("State:", parola) == 0){
                         fscanf(punfile,"%s", parola);
-                        pro.state = parola;
+                        //printf("1 %s\n",parola);
+                        strcpy(pro.state, parola);
 
-                    }else if(strcmp("Pid:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        pro.pid = parola;
-
-                    }else if(strcmp("PPid:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        pro.ppid = parola;
-                        
-                    }else if(strcmp("Name:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        pro.name = parola;
-                        
-                    }else if(strcmp("VmRSS:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        pro.vmrss = parola;
-                        
-                    }else if(strcmp("VmSize:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        pro.vmsize = parola;         
                     }
+                    if(strcmp("Pid:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        //printf("2 %s\n",parola);
+                        strcpy(pro.pid, parola);
+
+                    }
+                    if(strcmp("PPid:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        //printf("3 %s\n",parola);
+                        strcpy(pro.ppid, parola);
+                        
+                    }
+                    if(strcmp("Name:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        //printf("4 %s\n",parola);
+                        strcpy(pro.name, parola);
+                        
+                    }
+                    if(strcmp("VmRSS:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        //printf("5 %s\n",parola);
+                        strcpy(pro.vmrss, parola);                        
+                    }
+                    if(strcmp("VmSize:", parola) == 0){
+                        fscanf(punfile,"%s", parola);
+                        //printf("6 %s\n",parola);
+                        strcpy(pro.vmsize, parola);        
+                    }
+                    
+                    
                 }
 
+                
                 printf("PROVO a stampare lo state del processo: %s\n", pro.state);
+                printf("PROVO a stampare lo name del processo: %s\n", pro.name);
+                printf("PROVO a stampare lo pid del processo: %s\n", pro.pid);
+                printf("PROVO a stampare lo ppid del processo: %s\n", pro.ppid);
+                printf("PROVO a stampare lo VmSize del processo: %s\n", pro.vmsize);
+                printf("PROVO a stampare lo vmrss del processo: %s\n", pro.vmrss);
+                
+
 
                 fclose(punfile);
 
