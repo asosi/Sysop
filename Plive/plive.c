@@ -184,15 +184,23 @@ void proc(char *path){
                     n++;
                     elenco = realloc(elenco,(sizeof(struct datiproc*)*(n+1))); 
                 }
+                  /*
+                  printf("###############%s#####################\n", pro->pid);
+                  printf("Stato processo: %s\n", pro->state);
+                  printf("Nome processo: %s\n", pro->name);
+                  printf("Pid processo: %s\n", pro->pid);
+                  printf("PPid processo: %s\n", pro->ppid);
+                  printf("VmSize processo: %s\n", pro->vmsize);
+                  printf("VmRSS processo: %s\n", pro->vmrss);
+                  printf("##########################################\n");
+                  */
 
-                printf("#####################%s#####################\n", pro->pid);
-                printf("Stato processo: %s\n", pro->state);
-                printf("Nome processo: %s\n", pro->name);
-                printf("Pid processo: %s\n", pro->pid);
-                printf("PPid processo: %s\n", pro->ppid);
-                printf("VmSize processo: %s\n", pro->vmsize);
-                printf("VmRSS processo: %s\n", pro->vmrss);
-                printf("##########################################\n");
+
+                int j;
+                printf("<PID>     <PPID>   <VmRSS>   <name>   \n");
+                for(j=0;j<n;j++){
+                  printf("%s   %s    %s   %s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);           
+                }
                 
                 fclose(punfile);
 
