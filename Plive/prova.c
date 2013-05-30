@@ -9,6 +9,7 @@
 #include <ncurses.h>
 
 void infoproc(char *path);
+void calcpu(char *percorso);
 
 
 void movedir(char *dir){
@@ -78,8 +79,6 @@ void movedir(char *dir){
             //chiamo la funzione che entra nella sottodirectory del processo
             infoproc(new_path);
 
-            //chiamo la funzione calcpu
-            calcpu("/proc/");
         }
         // stampa i file contenuti nel path dato
         //else printf("%s\n",entry->d_name);
@@ -197,7 +196,7 @@ void infoproc(char *path){
 
 
 
-
+// metodo calcolo CPU total
 void calcpu(char *percorso){
 
 
@@ -280,16 +279,22 @@ int main()
     //carattere preso dalla getch
     char car;
 
-    initscr();
-    printw("#######################################################\n"); 
-    printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
-    movedir("/Users/Andrea/Desktop/");
+    do{
+        initscr();
+        printw("%c",car);
+        printw("#######################################################\n"); 
+        printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
+        movedir("/Users/Andrea/Desktop/");
+        car = getch();
 
-    refresh();  
-    car = getch();  
+        clear();
+        refresh();
+    }
+    while( car != 'q' && car != 'Q');
     endwin();
-    printf("%c\n",car); 
-    return 0; 
+    return 0;
+    //calcpu("/proc/"); 
+
 }
 
 
