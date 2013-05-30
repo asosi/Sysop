@@ -9,7 +9,7 @@
 #include <ncurses.h>
 
 void infoproc(char *path);
-void calcpu(char *percorso);
+double calcpu(char *percorso);
 
 
 void movedir(char *dir){
@@ -62,7 +62,7 @@ void movedir(char *dir){
         if(S_ISDIR(statbuf.st_mode)) {
             // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
             if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
-            	continue;
+                continue;
             }
 
             // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
@@ -197,7 +197,7 @@ void infoproc(char *path){
 
 
 // metodo calcolo CPU total
-void calcpu(char *percorso){
+double calcpu(char *percorso){
 
 
     FILE *gostat;
@@ -205,7 +205,6 @@ void calcpu(char *percorso){
 
     //variabile per calcolo CPU total
     double totalCPU;
-    double totalCPUafter; 
 
     double temp = 0;
 
@@ -268,33 +267,46 @@ void calcpu(char *percorso){
 
 
 
-int main()
-{
-    //printf("#######################################################\n");
-    //printf("%8s%8s%8s%20s\n", "<PID>","<PPID>","<VmRSS>","<Name>");
-    // IMPORTANTE!!! specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/ 
-    //printdir("/Users/Andrea/Desktop/");
-    //printf("#######################################################\n");
+int main(int argc, char *argv[]){
+
+    char ch;
+    int n = 0;
+    char* valore;
+    int numerop=0;
 
     //carattere preso dalla getch
     char car;
 
-    do{
-        initscr();
-        printw("%c",car);
-        printw("#######################################################\n"); 
-        printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
-        movedir("/Users/Andrea/Desktop/");
-        car = getch();
 
-        clear();
-        refresh();
+    while((ch = getopt (argc, argv, "n: ")) != -1){
+        switch (ch){
+                case 'n': n=1; valore = optarg;  break;     
+        }
     }
-    while( car != 'q' && car != 'Q');
-    endwin();
-    return 0;
-    //calcpu("/proc/"); 
+    if(n==0){
+        printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");    
+    }else{
+        numerop = atoi(valore);
+        do{
+            initscr();
+            printw("%c",car);
+            printw("#######################################################\n"); 
+            printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
 
+            int k;
+            for(k=0;k<numerop;k++){
+                movedir("/Users/Andrea/Desktop/");
+            }
+
+            car = getch();
+            clear();
+            refresh();
+        }
+        while( car != 'q' && car != 'Q');
+        endwin();
+        return 0;
+    }
+    //calcpu("/proc/"); 
 }
 
 
