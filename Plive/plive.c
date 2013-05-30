@@ -201,7 +201,6 @@ void proc(char *path){
 
 
                 int j;
-                //printf("%8s%8s%8s%20s\n", "<PID>","<PPID>","<VmRSS>","<Name>");
                 for(j=0;j<nproc;j++){
                   printf("%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);           
                 }
@@ -218,9 +217,11 @@ void proc(char *path){
 
 int main()
 {
+    printf("#######################################################\n");
     printf("%8s%8s%8s%20s\n", "<PID>","<PPID>","<VmRSS>","<Name>");
     // IMPORTANTE!!! specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/ 
     printdir("/Users/Andrea/Desktop/");
+    printf("#######################################################\n");
 }
 
 
