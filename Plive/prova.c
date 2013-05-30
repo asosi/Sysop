@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <ncurses.h>
 
 void proc(char *path);
 
@@ -189,10 +190,10 @@ void proc(char *path){
                     elenco = realloc(elenco,(sizeof(struct datiproc*)*(n+1))); 
                 }
 
-
                 int j;
                 for(j=0;j<nproc;j++){
-                  mvprintw(j+2,0,"%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);           
+                  //mvprintw(j+2,0,"%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);
+                  printw("%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);              
                 }
                 
                 fclose(punfile);
