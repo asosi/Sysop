@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <unistd.h>
 #define __USE_GNU
 
 void copia_file(char* argv1, char* argv2);
@@ -23,18 +24,29 @@ if(argc < 3){
       printf("Troppi argomenti! Passare due file o due cartelle!\n");
       //exit
    else{
+      char* argv1= (char*)malloc(sizeof(char)*500);
 
+      argv1 = strcpy(argv1,argv[1]);
+      strcat(argv1,"/");
+
+      //printf("\n%s\n\n",argv1);
 
       DIR *dp;
       struct dirent *entry;
       struct stat statbuf;
 
-      if((dp = opendir(argv[1])) == NULL) {
-           copia_file(argv[1], argv[2]);
-           return;
+      if((dp = opendir(argv[2])) == NULL) {
+         copia_file(argv[2], argv[1]);
+         return;
       }
 
-      copia_cartella(argv[1],argv[2],dp,statbuf);
+      if(argv[2][strlen(argv[2])-1] != '/')
+         strcat(argv[2],"/");
+
+
+      copia_cartella(argv[2],argv1,dp,statbuf);
+
+      printf("\nTutti i file sono stati copiati correttamente!\n\n");
       
 
    }
@@ -43,41 +55,42 @@ if(argc < 3){
 
 void copia_file(char* argv1, char* argv2){   
 
-   printf("è un file\n");
+   if(access(argv1,R_OK)==0){
 
-   FILE *buf_read, *buf_write;
-   int ch;
+      FILE *buf_read, *buf_write;
+      int ch;
 
-   printf("argv1: %s\n",argv1);
-   printf("argv2: %s\n",argv2);
+      //printf("argv1: %s\n",argv1);
+      //printf("argv2: %s\n",argv2);
 
-   buf_read = fopen(argv1, "r");
-   buf_write = fopen(argv2, "w");
+      buf_read = fopen(argv1, "r");
+      buf_write = fopen(argv2, "w");
 
-   while((ch = fgetc(buf_read)) != EOF)
-      fputc(ch, buf_write);
+      while((ch = fgetc(buf_read)) != EOF)
+         fputc(ch, buf_write);
 
-   fclose(buf_write);
-   fclose(buf_read);
+      fclose(buf_write);
+      fclose(buf_read);
+   }
+   else
+      printf("Il file: %s non può essere copiato\n", argv1);
 
-   printf("Il file è stato copiato\n");
+   //printf("Il file è stato copiato\n");
 }
 
 
 void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf){
-   
+
+
    CreateFolder(write);
-   printf("è una cartella\n");
-
-   //char* percorsoCartella = argv[1];
-   //char* percorsoCartellaDest = argv[2];
-
    struct dirent *entry;
 
-   printf("A\n");
+   //printf("A\n");
    while((entry = readdir(dp)) != NULL){
-   printf("B\n");
-   
+   //printf("B\n");
+
+
+   if(access(read,R_OK)==0){
 
       DIR *dp1;
       struct stat statbuf1;
@@ -104,23 +117,19 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf){
 
 
          if(!S_ISDIR(statbuf1.st_mode)){
-            //printf("%s\n", percorsoCartella);
-            //printf("%s\n", percorsoCartellaDest);
 
-
-            //printf("%s\n", strcat(percorsoCartella,entry->d_name));
-            //printf("%s\n", strcat(percorsoCartellaDest,entry->d_name));
             copia_file(percorsoCartella,percorsoCartellaDest );
          }
          else{
             strcat(percorsoCartella,"/");
             strcat(percorsoCartellaDest,"/");
 
-            printf("Trovato cartella: %s\n",entry->d_name );
+            //printf("Trovato cartella: %s\n",entry->d_name );
             copia_cartella(percorsoCartella,percorsoCartellaDest,dp1,statbuf1);
          }
       }
    }
+}
 }
 
 void CreateFolder(char *dirname){
@@ -128,8 +137,8 @@ void CreateFolder(char *dirname){
    int check;
    check = mkdir(dirname,0777);
 
-   if (!check)
-   printf("Directory created\n");
+  // if (!check)
+  // printf("Directory created\n");
 
    //printf("%d\n",strcmp(percorsoInizio,percorsoDest));
 }
