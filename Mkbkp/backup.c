@@ -17,12 +17,12 @@ void VisualizzaArchivio();
 
 void copia_file(char* argv1, char* argv2);
 void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf);
-void StampaBKP(char k,char* percorsoDest);
+void StampaBKP(char k,char* percorsoDest, char*percorso1);
 //****************************************************************************
 
 
 char* inizio = "--------------------------------------------------------------------inizio----------------------------------------------------------------\n";
-char* fine = "--------------------------------------------------------------------fine--------------------------------------------------------------------";
+char* fine = "--------------------------------------------------------------------fine--------------------------------------------------------------------\n";
 char* riga = "\n--------------------------------------------------------------------------------------------------------------------------------------------\n";
 
 int main(int argc, char *argv[]){
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
     //printf("%s\n", percorsoDest);
 
     if(percorso == NULL && c == 1)
-    	printf("Non hai inserito l'archivio da creare\n");
+    printf("Non hai inserito l'archivio da creare\n");
     else if(percorso == NULL && x == 1)
     	printf("Non hai inserito l'archivio da estrarre\n");    
     else if(percorso == NULL && t == 1)
@@ -53,28 +53,31 @@ int main(int argc, char *argv[]){
     else{
     	if(c == 1){ 
 
-			StampaBKP('0',percorsoDest);
+			StampaBKP('0',percorsoDest,NULL);
 
 			char* argv1= (char*)malloc(sizeof(char)*500);
 
-	      	argv1 = strcpy(argv1,argv[1]);
-		    strcat(argv1,"/");
+	      	argv1 = strcpy(argv1,percorsoDest);
+		   // strcat(argv1,"/");
 
 		    //printf("\n%s\n\n",argv1);
 
 		    DIR *dp;
 		    struct dirent *entry;
 		    struct stat statbuf;
+            dp = opendir(percorso);
 
+            lstat(percorso,&statbuf);
 		   
          	if(!S_ISDIR(statbuf.st_mode)){
     			CreaArchivio(percorsoDest,percorso);
 		        return;
 		    }
 		    else{
-			    if(argv[2][strlen(argv[2])-1] != '/')
-			        strcat(argv[2],"/");
-				copia_cartella(argv[2],argv1,dp,statbuf);
+			   if(percorso[strlen(percorso)-1] != '/')
+			        strcat(percorso,"/");
+
+				copia_cartella(percorso,argv1,dp,statbuf);
 		    }
     	}
     	else if(x == 1) EstraiArchivio();
@@ -87,18 +90,21 @@ void CreaArchivio(char* percorsoDest, char* percorso){
 	printf("Creazione dell'archivio:\n");
 
 
-	StampaBKP('i',percorsoDest); //inizio
-	StampaBKP('n',percorso); //percorso
-	StampaBKP('r',percorsoDest); //riga
+    printf("%s\n", percorso);
+    printf("%s\n", percorsoDest);
+
+	StampaBKP('i',percorsoDest,NULL); //inizio
+	StampaBKP('n',percorsoDest,percorso); //percorso
+	StampaBKP('r',percorsoDest,NULL); //riga
 	
 	copia_file(percorso,percorsoDest); //contenuto file
 
-	StampaBKP('-',percorsoDest); //riga vuota
-	StampaBKP('f',percorsoDest); //fine
+	StampaBKP('-',percorsoDest,NULL); //riga vuota
+	StampaBKP('f',percorsoDest,NULL); //finee
 
 }
 
-void StampaBKP(char k,char* percorso){
+void StampaBKP(char k,char* percorso, char*percorso1){
 	FILE *buf_write;
 	if(k!='0')
     	buf_write = fopen(percorso, "a");
@@ -112,7 +118,7 @@ void StampaBKP(char k,char* percorso){
     	case 'i': fputs(inizio,buf_write); break;
     	case 'f': fputs(fine,buf_write); break;
     	case 'r': fputs(riga,buf_write); break;
-    	case 'n': fputs(percorso,buf_write); break;
+    	case 'n': fputs(percorso1,buf_write); break;
     	case '-': fputc('\n',buf_write);break;
       }
 	fclose(buf_write);
@@ -164,7 +170,7 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf){
 
 
          strcat(percorsoCartella,entry->d_name);
-         strcat(percorsoCartellaDest,entry->d_name);
+        // strcat(percorsoCartellaDest,entry->d_name);
 
          lstat(percorsoCartella,&statbuf1);
          
@@ -179,7 +185,7 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf){
          }
          else{
             strcat(percorsoCartella,"/");
-            strcat(percorsoCartellaDest,"/");
+            //strcat(percorsoCartellaDest,"/");
 
             //printf("Trovato cartella: %s\n",entry->d_name );
             copia_cartella(percorsoCartella,percorsoCartellaDest,dp1,statbuf1);
