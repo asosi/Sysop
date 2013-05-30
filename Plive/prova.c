@@ -8,10 +8,10 @@
 #include <errno.h>
 #include <ncurses.h>
 
-void proc(char *path);
+void infoproc(char *path);
 
 
-void printdir(char *dir){
+void movedir(char *dir){
 
     DIR *dp;
     struct dirent *entry;
@@ -76,7 +76,10 @@ void printdir(char *dir){
             strcat(new_path,"/");
 
             //chiamo la funzione che entra nella sottodirectory del processo
-            proc(new_path);
+            infoproc(new_path);
+
+            //chiamo la funzione calcpu
+            calcpu("/proc/");
         }
         // stampa i file contenuti nel path dato
         //else printf("%s\n",entry->d_name);
@@ -85,10 +88,10 @@ void printdir(char *dir){
 }
 
 
-void proc(char *path){
+void infoproc(char *path){
 
 
-    FILE *punfile;
+    FILE *gostatus;
     char parola[1024];
 
     // numero dei processi per stamparli
@@ -135,7 +138,7 @@ void proc(char *path){
 
                 //############################ ENTRO FILE STATUS ############################
                 // apro il file status in lettura
-                punfile = fopen("status", "r");
+                gostatus = fopen("status", "r");
 
                 //inizializzo pro
                 pro = malloc(sizeof(struct datiproc));
@@ -143,46 +146,33 @@ void proc(char *path){
                 //inizializzo array "elenco" di struct
                 struct datiproc** elenco = malloc(sizeof(struct datiproc*));
 
-                if(!punfile){
-                    printf("%s\n", "Errore apertura file 'status'!");
+                if(!gostatus){
+                    printf("%s\n", "Errore apertura file 'proc/%s/status'!",entry->d_name);
                 }
 
                 nproc++;
                 int n = 0;
                 // fscanf mi prende una parola alla volta del file
-                while(!feof(punfile)){
+                while(!feof(gostatus)){
 
-                    fscanf(punfile,"%s", parola);
+                    fscanf(gostatus,"%s", parola);
 
-                    
-                    if(strcmp("State:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        strcpy(pro->state, parola);
-
-                    }
                     if(strcmp("Pid:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
+                        fscanf(gostatus,"%s", parola);
                         strcpy(pro->pid, parola);
 
                     }
                     if(strcmp("PPid:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
+                        fscanf(gostatus,"%s", parola);
                         strcpy(pro->ppid, parola);
                         
                     }
                     if(strcmp("Name:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
+                        fscanf(gostatus,"%s", parola);
                         strcpy(pro->name, parola);
                         
                     }
-                    if(strcmp("VmRSS:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        strcpy(pro->vmrss, parola);                        
-                    }
-                    if(strcmp("VmSize:", parola) == 0){
-                        fscanf(punfile,"%s", parola);
-                        strcpy(pro->vmsize, parola);        
-                    }
+
                     //aggiungo le struct all'array
                     elenco[n] = malloc(sizeof(struct datiproc));
                     elenco[n] = pro;
@@ -193,18 +183,91 @@ void proc(char *path){
                 int j;
                 for(j=0;j<nproc;j++){
                   //mvprintw(j+2,0,"%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);
-                  printw("%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);              
+                  printw("|%8s|%8s|%8s|%20s |\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);              
                 }
                 
-                fclose(punfile);
+                fclose(gostatus);
 
-                //###########################################################################
             }
         }
     }
 
     closedir(des);
 }
+
+
+
+
+void calcpu(char *percorso){
+
+
+    FILE *gostat;
+    char parola[1024];
+
+    //variabile per calcolo CPU total
+    double totalCPU;
+    double totalCPUafter; 
+
+    double temp = 0;
+
+    DIR *dir2;
+
+    struct dirent *entry;
+    struct stat statbuf;
+    if((dir2 = opendir(percorso)) == NULL) {
+        perror(percorso);
+        return;
+    }
+
+    chdir(percorso);
+
+    while((entry = readdir(dir2)) != NULL) {
+        lstat(entry->d_name,&statbuf);
+        
+        //se ci sono cartelle contenute nella directory le ignoro
+        if(S_ISDIR(statbuf.st_mode)){
+            continue;
+        }else{
+
+            //controllo se nella directory in cui mi trovo esiste un file chiamato "stat"
+            if(strcmp("stat",entry->d_name) == 0){
+
+                //############################ ENTRO FILE STAT ############################
+                // apro il file stat in lettura
+                gostat = fopen("stat", "r");
+
+                if(!gostat){
+                    printf("%s\n", "Errore apertura file 'proc/stat'!");
+                }
+
+                // fscanf mi prende una parola alla volta del file
+                while(!feof(gostat)){
+
+                    fscanf(gostat,"%s", parola);
+ 
+                    if(strcmp("cpu", parola) == 0){
+                        continue;
+                    }
+                      if(strcmp("cpu0", parola) == 0){
+                        exit;
+                    }
+
+                    temp = atof(parola);
+                    totalCPU += temp;
+                    
+                }
+                printf("%f\n", totalCPU );
+                
+                fclose(gostat);
+
+            }
+        }
+    }
+
+    closedir(dir2);
+}
+
+
 
 int main()
 {
@@ -214,14 +277,18 @@ int main()
     //printdir("/Users/Andrea/Desktop/");
     //printf("#######################################################\n");
 
+    //carattere preso dalla getch
+    char car;
+
     initscr();
-    mvprintw(0, 0,"#######################################################\n"); 
-    mvprintw(1, 0,"%8s%8s%8s%20s\n", "<PID>","<PPID>","<VmRSS>","<Name>");
-    printdir("/Users/Andrea/Desktop/");
+    printw("#######################################################\n"); 
+    printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
+    movedir("/Users/Andrea/Desktop/");
 
     refresh();  
-    getch();  
-    endwin(); 
+    car = getch();  
+    endwin();
+    printf("%c\n",car); 
     return 0; 
 }
 
