@@ -25,16 +25,16 @@ if(argc < 3){
    else{
 
 
-	   DIR *dp;
-	   struct dirent *entry;
-	   struct stat statbuf;
+      DIR *dp;
+      struct dirent *entry;
+      struct stat statbuf;
 
-	   if((dp = opendir(argv[1])) == NULL) {
-	        copia_file(argv[1], argv[2]);
-	        return;
-	   }
+      if((dp = opendir(argv[1])) == NULL) {
+           copia_file(argv[1], argv[2]);
+           return;
+      }
 
-	   copia_cartella(argv[1],argv[2],dp,statbuf);
+      copia_cartella(argv[1],argv[2],dp,statbuf);
       
 
    }
