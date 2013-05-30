@@ -90,6 +90,9 @@ void proc(char *path){
     FILE *punfile;
     char parola[1024];
 
+    // numero dei processi per stamparli
+    int nproc = 0;
+
     //struct per contenere dati processo
     struct datiproc{
       char state[10];
@@ -143,6 +146,7 @@ void proc(char *path){
                     printf("%s\n", "Errore apertura file 'status'!");
                 }
 
+                nproc++;
                 int n = 0;
                 // fscanf mi prende una parola alla volta del file
                 while(!feof(punfile)){
@@ -197,8 +201,8 @@ void proc(char *path){
 
 
                 int j;
-                printf("<PID>     <PPID>   <VmRSS>   <name>   \n");
-                for(j=0;j<n;j++){
+                printf("<PID>     <PPID>    <VmRSS>   <name>   \n");
+                for(j=0;j<nproc;j++){
                   printf("%s   %s    %s   %s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);           
                 }
                 
