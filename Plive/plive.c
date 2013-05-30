@@ -201,9 +201,9 @@ void proc(char *path){
 
 
                 int j;
-                printf("<PID>     <PPID>    <VmRSS>   <name>   \n");
+                printf("%8s%8s%8s%8s\n", "<PID>","<PPID>","<VmRSS>","<Name>");
                 for(j=0;j<nproc;j++){
-                  printf("%s   %s    %s   %s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);           
+                  printf("%8s%8s%8s%8s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);           
                 }
                 
                 fclose(punfile);
