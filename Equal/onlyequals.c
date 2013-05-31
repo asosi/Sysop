@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define NOT_EXIST -1
 //****************************IMPORTANTE*******************************************
@@ -36,52 +37,24 @@ int main (int argc,char* argv[]){
 		}
 		if(first!=NOT_EXIST && second!= NOT_EXIST){
 
-			char riga1[1];
-			char riga2[1];
+			char* ch1 = malloc(sizeof(char));
+			char* ch2 = malloc(sizeof(char));
 		
 			int i=0; //usata per ciclare
 
-			char* diff1 = (char*)malloc(sizeof(char));
-			char* diff2 = (char*)malloc(sizeof(char));
+			char* diff1 = (char*)malloc(sizeof(char)*100);
+			char* diff2 = (char*)malloc(sizeof(char)*100);
 
-			// :)
-
-			//  X  X XXXX X    X    XXXX XXXX
-			//  X  X X    X    X    X  X X
-			//  XXXX XXX  X    X    XXXX XXXX
-			//  X  X X    X    X    X  X    X
-			//  X  X XXXX XXXX XXXX X  X XXXX
 			int h =0;
-			while((canread1 = read(first,riga1,1))>0 && (canread2 = read(second,riga2,1))>0){
-				//printf("f1: %c, f2: %c\n", riga1[y], riga2[y]);
-				if(riga1[0] != riga2[0]){
-					allequal = 0; //setto non diversi
-					diff1 = (char*)realloc(diff1,sizeof(char)*(h+1));
-					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
-					diff1[h] = riga1[0];
-					diff2[h] = riga2[0];
-					h++;
-				}
-			}
-			if(canread1>0){
-					diff1 = (char*)realloc(diff1,sizeof(char)*(h+1));
-					diff1[h] = riga1[0];
-					h++;
-				while((canread1 = read(first,riga1,1))>0){
-					diff1 = (char*)realloc(diff1,sizeof(char)*(h+1));
-					diff1[h] = riga1[0];
-					h++;
-				}
-			}
-			else if(canread2>0){
-					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
-					diff2[h] = riga2[0];
-					h++;
-				while((canread2 = read(second,riga2,1))>0){
-					diff2 = (char*)realloc(diff2,sizeof(char)*(h+1));
-					diff2[h] = riga2[0];
-					h++;
-				}
+			canread1 = read(first,ch1,1);
+			canread2 = read(second,ch2,1);
+			while(canread2>0){
+				allequal=0;
+				printf("%c     h vale %d\n", *ch2,h);
+				//diff2 = realloc(diff2,sizeof(char)*(h+1));
+				diff2[h] = *ch2;
+				h++;
+				canread2 = read(second,ch2,1);
 			}
 			close(first);
 			close(second);
@@ -90,10 +63,9 @@ int main (int argc,char* argv[]){
 				return (0);	
 			}else{ // se allequal vale 0 sono tutti uguali e ritorna 1
 				printf("I file sono diversi\n");
-					printf("------------------------------------------------%s------------------------------------------------\n%s\n",argv[1],diff1);
-					printf("------------------------------------------------%s------------------------------------------------\n%s\n",argv[2],diff2);
-					free(diff1);
-					free(diff2);
+					printf("%d\n", strlen(diff2));
+					printf("------------------------------------------------%s---------------------------------------\n%s",argv[1],diff1);
+					printf("------------------------------------------------%s---------------------------------------\n%s",argv[2],diff2);
 				return (1);
 			}
 		}
