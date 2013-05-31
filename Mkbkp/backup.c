@@ -12,12 +12,14 @@
 
 //***********************************HEADER***********************************
 void CreaArchivio(char* percorsoDest, char* percorso);
-void EstraiArchivio();
+void EstraiArchivio(char* percorso);
 void VisualizzaArchivio();
 
 void copia_file(char* argv1, char* argv2);
 void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf);
 void StampaBKP(char k,char* percorsoDest, char*percorso1);
+
+void LeggiFile(char* argv1);
 //****************************************************************************
 
 
@@ -53,9 +55,9 @@ int main(int argc, char *argv[]){
     else{
     	if(c == 1){ 
 
-			StampaBKP('0',percorsoDest,NULL);
+  			StampaBKP('0',percorsoDest,NULL);
 
-			char* argv1= (char*)malloc(sizeof(char)*500);
+  			char* argv1= (char*)malloc(sizeof(char)*500);
 
 	      	argv1 = strcpy(argv1,percorsoDest);
 		   // strcat(argv1,"/");
@@ -80,11 +82,13 @@ int main(int argc, char *argv[]){
 				copia_cartella(percorso,argv1,dp,statbuf);
 		    }
     	}
-    	else if(x == 1) EstraiArchivio();
+    	else if(x == 1) EstraiArchivio(percorsoDest);
     	else if(t == 1); VisualizzaArchivio();
     }
 
 }
+
+//*******************************Creazione Archivio**********************************************
 
 void CreaArchivio(char* percorsoDest, char* percorso){
 	printf("Creazione dell'archivio:\n");
@@ -95,13 +99,14 @@ void CreaArchivio(char* percorsoDest, char* percorso){
 
 	StampaBKP('i',percorsoDest,NULL); //inizio
 	StampaBKP('n',percorsoDest,percorso); //percorso
-	StampaBKP('r',percorsoDest,NULL); //riga
+
+    StampaBKP('-',percorsoDest,NULL); //riga vuota
+	//StampaBKP('r',percorsoDest,NULL); //riga
 	
 	copia_file(percorso,percorsoDest); //contenuto file
 
 	StampaBKP('-',percorsoDest,NULL); //riga vuota
 	StampaBKP('f',percorsoDest,NULL); //finee
-
 }
 
 void StampaBKP(char k,char* percorso, char*percorso1){
@@ -194,13 +199,69 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf){
    }
    }
 }
+//*******************************Estrazione Archivio**********************************************
 
-
-
-void EstraiArchivio(){
+void EstraiArchivio(char* percorso){
 	printf("Estrazione dell'archivio:\n");
-
+    LeggiFile(percorso);
 }
+
+void LeggiFile(char* argv1){
+
+    FILE *buf_read, *buf_write;
+    char buf[1000];
+    char* ch;
+    int k = 0;
+
+    buf_read = fopen(argv1, "r");
+/*
+    while((fgets(ch,1000,buf_read))){
+        printf("%s\n", ch);
+        if(ch == inizio){
+            printf("%s\n",ch );
+            buf_write = fopen(ch, "w");
+        }
+        else{
+            if(ch != fine){
+                fputs(ch, buf_write);
+            }
+        }
+    }
+*/
+
+        /* legge e stampa ogni riga */
+  while(1) {
+    ch=fgets(buf, 1000, buf_read);
+    if( ch==NULL )
+      break;
+    //printf("%s\n", buf);
+    if(strcmp(buf,inizio)==0)
+        k = 1;
+    else{
+        if(strcmp(buf,fine)!=0 && strcmp(buf,riga)!=0){
+            if(k == 1){
+                k = 0;
+                buf[strlen(buf)-1] = 0;
+                buf_write = fopen(buf, "a");
+            }
+            else{                
+                fputs(buf, buf_write);
+            }
+        }
+    }
+  }
+
+
+    //fclose(buf_write);
+    fclose(buf_read);
+}
+
+void CreateFolder(char *dirname){
+   int check;
+   check = mkdir(dirname,0777);
+}
+
+//*******************************Visualizza Archivio**********************************************
 
 void VisualizzaArchivio(){
 	printf("Visualizzazione dell'archivio:\n");
