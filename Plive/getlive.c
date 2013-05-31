@@ -277,20 +277,29 @@ int main(int argc, char *argv[]){
     //carattere preso dalla getch
     char car;
 
-
+    //getopt per passare il parametro -n <numero> , ovvero per mostrare "numero" processi
     while((ch = getopt (argc, argv, "n: ")) != -1){
         switch (ch){
-                case 'n': n=1; valore = optarg;  break;     
+                case 'n': n=1; valore = optarg;  break;
+                default: numerop=10;    
         }
     }
+
+    // caso default stampa 10 processi
+    if(argv[1] == NULL){
+        n++;
+        valore="10";
+    }
+
     if(n==0){
         printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");    
     }else{
+        //cast della stringa in intero
         numerop = atoi(valore);
         do{
             initscr();
-            printw("%c",car);
-            printw("#######################################################\n"); 
+            printw("Premere 'q' o 'Q' per uscire.\n");
+            printw("##################################################\n"); 
             printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
 
             int k;
