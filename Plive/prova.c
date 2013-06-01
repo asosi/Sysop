@@ -8,13 +8,14 @@
 #include <errno.h>
 #include <ncurses.h>
 
+
 //struct per contenere dati processo
 struct datiproc{
-    char name[256];
-    char pid[100];
-    char ppid[100];
-    char utime[100];
-    char stime[100];
+    char name[1024];
+    char pid[1024];
+    char ppid[1024];
+    char utime[1024];
+    char stime[1024];
     double percentuale;
 };
 
@@ -25,6 +26,7 @@ void percpu(int nproc);
 //numero processi
 int nproc = 0;
 
+int numerop=0;
 
 struct datiproc** elenco;
 
@@ -137,7 +139,7 @@ void infoproc(char *path){
                 elenco[nproc] = malloc(sizeof(struct datiproc));
 
                 //############################ ENTRO FILE STAT ############################
-                // apro il file status in lettura
+                // apro il file stat in lettura
                 gostatus = fopen("stat", "r");
 
 
@@ -147,29 +149,29 @@ void infoproc(char *path){
 
                 int n = 0;
 
+                fscanf(gostatus,"%s", parola);
+                strcpy(elenco[nproc]->pid, parola);
+
+                fscanf(gostatus,"%s", parola);
+                strcpy(elenco[nproc]->name, parola);
+
+                fscanf(gostatus,"%s", parola);
+
+                fscanf(gostatus,"%s", parola);
+                strcpy(elenco[nproc]->ppid, parola);
+
+                int p;
+                for(p=0;p<9;p++){
                     fscanf(gostatus,"%s", parola);
-                    strcpy(elenco[nproc]->pid, parola);
+                }
 
-                    fscanf(gostatus,"%s", parola);
-                    strcpy(elenco[nproc]->name, parola);
+                fscanf(gostatus,"%s", parola);
+                strcpy(elenco[nproc]->utime, parola);
 
-                    fscanf(gostatus,"%s", parola);
+                fscanf(gostatus,"%s", parola);
+                strcpy(elenco[nproc]->stime, parola);
 
-                    fscanf(gostatus,"%s", parola);
-                    strcpy(elenco[nproc]->ppid, parola);
-
-                    int p;
-                    for(p=0;p<9;p++){
-                        fscanf(gostatus,"%s", parola);
-                    }
-
-                    fscanf(gostatus,"%s", parola);
-                    strcpy(elenco[nproc]->utime, parola);
-
-                    fscanf(gostatus,"%s", parola);
-                    strcpy(elenco[nproc]->stime, parola);
-
-                    percpu(nproc);
+                percpu(nproc);
 
                 printw("|%8s|%8s|%10f %%|%20s |\n", elenco[nproc]->pid, elenco[nproc]->ppid, elenco[nproc]->percentuale, elenco[nproc]->name);
                 nproc++;
@@ -191,7 +193,7 @@ double calcpu(char *percorso){
     char parola[1024];
 
     //variabile per calcolo CPU total
-    double totalCPU;
+    double totalCPU = 0.0;
 
     double temp = 0.0;
 
@@ -234,6 +236,7 @@ double calcpu(char *percorso){
                         continue;
                     }
                       if(strcmp("cpu0", parola) == 0){
+                        closedir(dir2);
                         return totalCPU;
                     }
 
@@ -244,11 +247,9 @@ double calcpu(char *percorso){
                 return totalCPU;
                 
                 fclose(gostat);
-
             }
         }
     }
-
     closedir(dir2);
 }
 
@@ -259,6 +260,7 @@ void percpu(int nproc){
 
     double per = 0.0;
     double cpu_total = 0.0;
+
 
     double pcpu = 0.0;
     double utime = 0.0;
@@ -315,6 +317,7 @@ int main(int argc, char *argv[]){
             printw("Premere 'q' o 'Q' per uscire.\n");
             printw("####################################################\n"); 
             printw(" %8s %8s   %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
+            scrollok(stdscr,TRUE);
             movedir("/Users/Andrea/Desktop/proc/");
             car = getch();
             clear();
