@@ -44,11 +44,11 @@ int main (int argc,char* argv[]){
   }
 	else{
 
-    //caso: cartella----cartella
     int firstISdir = isDir(argv[1]);
     int secondISdir = isDir(argv[2]);
     int allequal = 0;
 
+     //caso: cartella----cartella
     if(firstISdir && secondISdir){  		
       //salvo directory corrente
   		char cwd[1024];
@@ -175,55 +175,59 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
     int i;
     int allequal = 1;
     int k=0;
-    int dim;
-    printf("\n");
-    for(i=0; i<dim1; i++){
-      k=0;
-      while(k<dim2){
-          if(strcmp(contenuto1[i]->nome,contenuto2[k]->nome)==0){
-            if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == DIRECTORY){
-              contenuto1[i]->find = FIND;
-              contenuto2[k]->find = FIND;
-              k=dim2;
-            }
-            else if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == FILE){
-              contenuto1[i]->find = FIND;
-              contenuto2[k]->find = FIND;
-              printf("Il file %s in %s è una directory, mentre il file %s in %s è un file normale\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
-              k=dim2;
-              allequal = 0;
-            }
-            else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == DIRECTORY){
-              contenuto1[i]->find = FIND;
-              contenuto2[k]->find = FIND;
-              printf("Il file %s in %s è un file normale, mentre il file %s in %s è una directory\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
-              k=dim2;
-              allequal = 0;
-            }
-            else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == FILE){
-              contenuto1[i]->find = FIND;
-              contenuto2[k]->find = FIND;
-              char path1[1024];
-              char path2[1024];
-              strcpy(path1,a1);
-              strcpy(path2,a2);
-              if(path1[strlen(path1)-1] != '/')
-                strcat(path1,"/");
-              if(path2[strlen(path2)-1] != '/')
-                strcat(path2,"/");
-              strcat(path1,contenuto1[i]->nome);
-              strcat(path2,contenuto2[k]->nome);
-              int equal = fileCompare(path1, path2);
-              if(equal != 1){
-                if(equal==0)
-                  printf("I file %s e %s sono diversi\n", path1, path2);
-                allequal=0;
+    if(dim1>0 && dim2>0){
+      for(i=0; i<dim1; i++){
+        k=0;
+        while(k<dim2){
+            if(strcmp(contenuto1[i]->nome,contenuto2[k]->nome)==0){
+              if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == DIRECTORY){
+                contenuto1[i]->find = FIND;
+                contenuto2[k]->find = FIND;
+                k=dim2;
+              }
+              else if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == FILE){
+                contenuto1[i]->find = FIND;
+                contenuto2[k]->find = FIND;
+                printf("Il file %s in %s è una directory, mentre il file %s in %s è un file normale\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
+                k=dim2;
+                allequal = 0;
+              }
+              else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == DIRECTORY){
+                contenuto1[i]->find = FIND;
+                contenuto2[k]->find = FIND;
+                printf("Il file %s in %s è un file normale, mentre il file %s in %s è una directory\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
+                k=dim2;
+                allequal = 0;
+              }
+              else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == FILE){
+                contenuto1[i]->find = FIND;
+                contenuto2[k]->find = FIND;
+                char path1[1024];
+                char path2[1024];
+                strcpy(path1,a1);
+                strcpy(path2,a2);
+                if(path1[strlen(path1)-1] != '/')
+                  strcat(path1,"/");
+                if(path2[strlen(path2)-1] != '/')
+                  strcat(path2,"/");
+                strcat(path1,contenuto1[i]->nome);
+                strcat(path2,contenuto2[k]->nome);
+                int equal = fileCompare(path1, path2);
+                if(equal != 1){
+                  if(equal==0)
+                    printf("I file %s e %s sono diversi\n", path1, path2);
+                  allequal=0;
+                }
               }
             }
-          }
-          k++;
+            else
+              allequal = 0;
+            k++;
+        }
       }
     }
+    else
+      allequal=0;
     return allequal;
 }
 
@@ -249,11 +253,13 @@ int fileCompare(char* argv1, char* argv2){
 
     if(first==NOT_EXIST){
       perror(argv1); //ritorno errore argv1 inesistente
-      //exit
+      if(second==NOT_EXIST)
+        perror(argv2); //ritorno errore argv2 inesistente
+      exit(EXIT_FAILURE);
     }
     if(second==NOT_EXIST){
       perror(argv2); //ritorno errore argv2 inesistente
-      //exit
+      exit(EXIT_FAILURE);
     }
     if(first!=NOT_EXIST && second!= NOT_EXIST){
 
