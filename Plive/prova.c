@@ -8,11 +8,30 @@
 #include <errno.h>
 #include <ncurses.h>
 
+//struct per contenere dati processo
+struct datiproc{
+    char name[256];
+    char pid[100];
+    char ppid[100];
+    char utime[100];
+    char stime[100];
+    double percentuale;
+};
+
 void infoproc(char *path);
-void calcpu(char *percorso);
+double calcpu(char *percorso);
+void percpu(int nproc);
+
+//numero processi
+int nproc = 0;
+
+
+struct datiproc** elenco;
 
 
 void movedir(char *dir){
+
+    elenco = malloc(sizeof(struct datiproc*));
 
     DIR *dp;
     struct dirent *entry;
@@ -62,12 +81,8 @@ void movedir(char *dir){
         if(S_ISDIR(statbuf.st_mode)) {
             // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
             if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
-            	continue;
+                continue;
             }
-
-            // stampa le directory contenute nel path dato, aggiunge "/" cosi si identificano dai file
-            //printf("%s/\n",entry->d_name);
-
             
             //concateno la stringa della dir con la cartella per creare il path di ogni cartella dei proc
             char new_path[256];
@@ -80,8 +95,6 @@ void movedir(char *dir){
             infoproc(new_path);
 
         }
-        // stampa i file contenuti nel path dato
-        //else printf("%s\n",entry->d_name);
     }
     closedir(dp);
 }
@@ -93,21 +106,8 @@ void infoproc(char *path){
     FILE *gostatus;
     char parola[1024];
 
-    // numero dei processi per stamparli
-    int nproc = 0;
-
-    //struct per contenere dati processo
-    struct datiproc{
-      char state[10];
-      char name[256];
-      char pid[100];
-      char ppid[100];
-      char vmrss[1000];
-      char vmsize[1000];
-    };
 
     DIR *des;
-    struct datiproc* pro;
     struct dirent *entry;
     struct stat statbuf;
     if((des = opendir(path)) == NULL) {
@@ -129,75 +129,62 @@ void infoproc(char *path){
         if(S_ISDIR(statbuf.st_mode)){
             continue;
         }else{
-            //stampo ogni elemento contenuto nella directory che non sia una directory
-            //printf("\t%s\n",entry->d_name);
 
             //controllo se nella directory in cui mi trovo esiste un file chiamato "status"
-            if(strcmp("status",entry->d_name) == 0){
+            if(strcmp("stat",entry->d_name) == 0){
 
-                //############################ ENTRO FILE STATUS ############################
+                elenco = realloc(elenco,(sizeof(struct datiproc*)*(nproc+1))); 
+                elenco[nproc] = malloc(sizeof(struct datiproc));
+
+                //############################ ENTRO FILE STAT ############################
                 // apro il file status in lettura
-                gostatus = fopen("status", "r");
+                gostatus = fopen("stat", "r");
 
-                //inizializzo pro
-                pro = malloc(sizeof(struct datiproc));
-
-                //inizializzo array "elenco" di struct
-                struct datiproc** elenco = malloc(sizeof(struct datiproc*));
 
                 if(!gostatus){
-                    printf("%s\n", "Errore apertura file 'proc/%s/status'!",entry->d_name);
+                    printf("%s\n", "Errore apertura file 'proc/%s/stat'!",entry->d_name);
                 }
 
-                nproc++;
                 int n = 0;
-                // fscanf mi prende una parola alla volta del file
-                while(!feof(gostatus)){
+
+                    fscanf(gostatus,"%s", parola);
+                    strcpy(elenco[nproc]->pid, parola);
+
+                    fscanf(gostatus,"%s", parola);
+                    strcpy(elenco[nproc]->name, parola);
 
                     fscanf(gostatus,"%s", parola);
 
-                    if(strcmp("Pid:", parola) == 0){
-                        fscanf(gostatus,"%s", parola);
-                        strcpy(pro->pid, parola);
+                    fscanf(gostatus,"%s", parola);
+                    strcpy(elenco[nproc]->ppid, parola);
 
-                    }
-                    if(strcmp("PPid:", parola) == 0){
+                    int p;
+                    for(p=0;p<9;p++){
                         fscanf(gostatus,"%s", parola);
-                        strcpy(pro->ppid, parola);
-                        
-                    }
-                    if(strcmp("Name:", parola) == 0){
-                        fscanf(gostatus,"%s", parola);
-                        strcpy(pro->name, parola);
-                        
                     }
 
-                    //aggiungo le struct all'array
-                    elenco[n] = malloc(sizeof(struct datiproc));
-                    elenco[n] = pro;
-                    n++;
-                    elenco = realloc(elenco,(sizeof(struct datiproc*)*(n+1))); 
-                }
+                    fscanf(gostatus,"%s", parola);
+                    strcpy(elenco[nproc]->utime, parola);
 
-                int j;
-                for(j=0;j<nproc;j++){
-                  //mvprintw(j+2,0,"%8s%8s%8s%20s\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);
-                  printw("|%8s|%8s|%8s|%20s |\n", elenco[j]->pid, elenco[j]->ppid, elenco[j]->vmrss, elenco[j]->name);              
-                }
-                
+                    fscanf(gostatus,"%s", parola);
+                    strcpy(elenco[nproc]->stime, parola);
+
+                    percpu(nproc);
+
+                printw("|%8s|%8s|%10f %%|%20s |\n", elenco[nproc]->pid, elenco[nproc]->ppid, elenco[nproc]->percentuale, elenco[nproc]->name);
+                nproc++;
+
                 fclose(gostatus);
-
             }
         }
     }
-
     closedir(des);
 }
 
 
 
 // metodo calcolo CPU total
-void calcpu(char *percorso){
+double calcpu(char *percorso){
 
 
     FILE *gostat;
@@ -205,9 +192,8 @@ void calcpu(char *percorso){
 
     //variabile per calcolo CPU total
     double totalCPU;
-    double totalCPUafter; 
 
-    double temp = 0;
+    double temp = 0.0;
 
     DIR *dir2;
 
@@ -248,14 +234,14 @@ void calcpu(char *percorso){
                         continue;
                     }
                       if(strcmp("cpu0", parola) == 0){
-                        exit;
+                        return totalCPU;
                     }
 
                     temp = atof(parola);
                     totalCPU += temp;
                     
                 }
-                printf("%f\n", totalCPU );
+                return totalCPU;
                 
                 fclose(gostat);
 
@@ -268,33 +254,76 @@ void calcpu(char *percorso){
 
 
 
-int main()
-{
-    //printf("#######################################################\n");
-    //printf("%8s%8s%8s%20s\n", "<PID>","<PPID>","<VmRSS>","<Name>");
-    // IMPORTANTE!!! specificare percorso, ora metto questo per provare poi si dovrà mettere /proc/ 
-    //printdir("/Users/Andrea/Desktop/");
-    //printf("#######################################################\n");
+// funzione per calcolare la % della cpu usata da un processo
+void percpu(int nproc){
+
+    double per = 0.0;
+    double cpu_total = 0.0;
+
+    double pcpu = 0.0;
+    double utime = 0.0;
+    double stime = 0.0;
+
+    //calcolo CPU total del sistema e valori utime e stime del processo    
+    utime = atof(elenco[nproc]->utime);
+    stime = atof(elenco[nproc]->stime);
+    cpu_total = calcpu("/Users/Andrea/Desktop/");
+
+    //calcolo CPU processo con utime e stime
+    pcpu = utime + stime;
+
+    per = (pcpu / cpu_total)*100.0;
+
+    //calcolo percentuale finale
+    elenco[nproc]->percentuale = per;
+}
+
+
+
+int main(int argc, char *argv[]){
+
+    char ch;
+    int n = 0;
+    char* valore;
+    int numerop=0;
+    
 
     //carattere preso dalla getch
     char car;
 
-    do{
-        initscr();
-        printw("%c",car);
-        printw("#######################################################\n"); 
-        printw(" %8s %8s %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
-        movedir("/Users/Andrea/Desktop/");
-        car = getch();
-
-        clear();
-        refresh();
+    //getopt per passare il parametro -n <numero> , ovvero per mostrare "numero" processi
+    while((ch = getopt (argc, argv, "n: ")) != -1){
+        switch (ch){
+                case 'n': n=1; valore = optarg;  break;
+                default: numerop=10;    
+        }
     }
-    while( car != 'q' && car != 'Q');
-    endwin();
-    return 0;
-    //calcpu("/proc/"); 
 
+    // caso default stampa 10 processi
+    if(argv[1] == NULL){
+        n++;
+        valore="10";
+    }
+
+    if(n==0){
+        printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");    
+    }else{
+        //cast della stringa in intero
+        numerop = atoi(valore);
+        do{
+            initscr();
+            printw("Premere 'q' o 'Q' per uscire.\n");
+            printw("####################################################\n"); 
+            printw(" %8s %8s   %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
+            movedir("/Users/Andrea/Desktop/proc/");
+            car = getch();
+            clear();
+            refresh();
+        }
+        while( car != 'q' && car != 'Q');
+        endwin();
+        return 0;
+    }
 }
 
 
