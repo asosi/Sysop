@@ -138,7 +138,6 @@ void infoproc(char *path){
                 elenco = realloc(elenco,(sizeof(struct datiproc*)*(nproc+1))); 
                 elenco[nproc] = malloc(sizeof(struct datiproc));
 
-                //############################ ENTRO FILE STAT ############################
                 // apro il file stat in lettura
                 gostatus = fopen("stat", "r");
 
@@ -215,7 +214,6 @@ double calcpu(char *percorso){
             //controllo se nella directory in cui mi trovo esiste un file chiamato "stat"
             if(strcmp("stat",entry->d_name) == 0){
 
-                //############################ ENTRO FILE STAT ############################
                 // apro il file stat in lettura
                 gostat = fopen("stat", "r");
 
@@ -305,15 +303,21 @@ int main(int argc, char *argv[]){
     }else{
         //cast della stringa in intero
         numerop = atoi(valore);
+	if(numerop > 40 || numerop < 0){
+		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
+		exit(EXIT_FAILURE);	
+	}
         do{
             initscr();
-            printw("Premere 'q' o 'Q' per uscire.\n");
-            printw("####################################################\n"); 
-            printw(" %8s %8s   %8s %20s  \n", "<PID>","<PPID>","<CPU>","<Name>");
+            printw("######################################################\n"); 
+            printw("#%8s %8s   %8s   %20s #\n", "<PID>","<PPID>","<%CPU>","<Name>");
+		printw("######################################################\n"); 
             timeout(timewait*1000);
             scrollok(stdscr,TRUE);
             movedir("/proc/");
-            stampaProcessi(numerop);
+       	    stampaProcessi(numerop);
+		printw("######################################################\n");
+		printw("Premere 'q' o 'Q' per uscire.\n");
             nproc=0;
             car = getch();
             if(car>48 && car<58)
@@ -331,7 +335,7 @@ void stampaProcessi(int n){
     int i;
     mergesort(0,nproc-1);
     for(i=0; i<n; i++)
-        printw("|%8s|%8s|%10f %%|%20s |\n",elenco[i]->pid, elenco[i]->ppid, elenco[i]->percentuale, elenco[i]->name);
+        printw("#%8s|%8s|%10f %%|%20s #\n",elenco[i]->pid, elenco[i]->ppid, elenco[i]->percentuale, elenco[i]->name);
 }
 
 void merge(int start, int center, int end){
