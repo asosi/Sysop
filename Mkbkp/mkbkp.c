@@ -44,9 +44,7 @@ int main(int argc, char *argv[]){
         }
     }
 
-    //printf("%s\n", percorso);
-    //printf("%s\n", percorsoDest);
-
+    //Controllo i parametri inseriti
     if(percorso == NULL && c == 1)
     printf("Non hai inserito l'archivio da creare\n");
     else if(percorso == NULL && x == 1)
@@ -54,12 +52,23 @@ int main(int argc, char *argv[]){
     else if(percorso == NULL && t == 1)
     	printf("Non hai inserito l'archivio da visualizzare\n");
     else{
+        //Creo il file .bkp
     	if(c == 1){ 
-            //Creazione archivio
-  			//StampaBKP('0',percorsoDest,NULL);
+            //Controllo se esiste un gia il file .bkp
+            int first = open(percorsoDest,O_RDONLY);
+            if(first!=NOT_EXIST){
+                printf("Il file di destinazione .bkp esiste gia!!!\n");
+                return;
+            }
+
+            //Controllo se la cartella/file da copiare esiste
+            int second = open(percorso,O_RDONLY);
+            if(second==-1){
+                printf("Il file/directory da copiare non esiste!!!\n");
+                return;                
+            }
 
   			char* argv1= (char*)malloc(sizeof(char)*500);
-
 	      	argv1 = strcpy(argv1,percorsoDest);
 
 		    DIR *dp;
@@ -83,23 +92,24 @@ int main(int argc, char *argv[]){
                 int op = open(percorsoDest, O_WRONLY | O_CREAT);
 				copia_cartella(percorso,argv1,dp,statbuf,op);
                 close(op);
-    chmod(percorsoDest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+                chmod(percorsoDest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		    }
     	}
-    	else if(x == 1) EstraiArchivio(percorsoDest,percorso);
-    	else if(t == 1) VisualizzaArchivio(percorsoDest);
+    	else if(x == 1) // Estraggo il file .bkp
+            EstraiArchivio(percorsoDest,percorso);
+    	else if(t == 1) //Visualizzo a video il file .bkp
+            VisualizzaArchivio(percorsoDest);
     }
 }
 
 //*******************************Creazione Archivio**********************************************
-
+//Crea l'archivio di un singolo file
 void CreaArchivio(char* percorsoDest, char* percorso){
 	printf("Creazione dell'archivio:\n");
 
     char str[strlen(percorso)];
     strcpy(str,percorso);
 
-    //char str[] = "now # is the time for all # good men to come to the # aid of their country";
     char delims[] = "/";
     char *result = NULL;
     char *nome = NULL;
@@ -121,15 +131,13 @@ void CreaArchivio(char* percorsoDest, char* percorso){
     }
 
 
-    int op = open(percorsoDest, O_WRONLY | O_CREAT);
-
-    copia_file(nome,percorso,percorsoDest,op); //contenuto file
-
-    close(op);
-
-    chmod(percorsoDest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+    int op = open(percorsoDest, O_WRONLY | O_CREAT);   //apro il file .bkp
+    copia_file(nome,percorso,percorsoDest,op); //Copio il contenuto del file, nel file .bkp
+    close(op);  //chiudo il file .bkp
+    chmod(percorsoDest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //Aggiungo permessi al file .bkp
 }
 
+//Crea l'archivio di una cartella
 void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
     printf("Creazione dell'archivio:\n");
 
@@ -147,6 +155,7 @@ void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
     copia_file(percorso,percorso,percorsoDest,op);
 }
 
+//Metodo che inserisce un file nel file .bkp
 void copia_file(char* percorso, char *from, char* to, int tofd) {
   int fromfd, nread;
   char buf[BUFSIZE];
@@ -163,34 +172,46 @@ void copia_file(char* percorso, char *from, char* to, int tofd) {
       perror(to);
       return;
     }
-  write(tofd, percorso, strlen(percorso));
-  write(tofd,"\n",1);
-  /* Leggo da un file e scrivo sull'altro */
-  while ((nread = read(fromfd, buf, sizeof(buf))) > 0)
-    if ((write(tofd, buf, nread)) != nread)
-    perror(to);
 
-  if (nread == -1)
-    perror(from);
-  char fine[10] = "---fine--\n";
-  /* Chiudo i file e  modifico i permessi */
-  write(tofd, fine, 10);
-  if(close(fromfd) == -1)
-    perror(from);
+    //Scrivo per prima cosa il percorso del file
+    write(tofd, percorso, strlen(percorso));
+
+    //Scrivo uno \n
+    write(tofd,"\n",1);
+
+    /* Leggo da un file e scrivo sull'altro */
+    while ((nread = read(fromfd, buf, sizeof(buf))) > 0)
+        if ((write(tofd, buf, nread)) != nread)
+            perror(to);
+
+    if (nread == -1)
+        perror(from);
+    char fine[10] = "---fine--\n";
+    
+    //Scrivo una stringa di fine file
+    write(tofd, fine, 10);
+
+    //Chiudo il file
+    if(close(fromfd) == -1)
+        perror(from);
 }
 
+//Metodo che inserisce nel file .bkp tutti i file di una  cartella
 void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf,int op){
 
    struct dirent *entry;
 
    printf("A\n");
 
+   //Ciclo su tutti i file contenuti nella cartella
    while((entry = readdir(dp)) != NULL){
 
-   if(access(read,R_OK)==0){
+    //Controllo se ho i diritti di accesso al file
+    if(access(read,R_OK)==0){
 
       DIR *dp1;
       struct stat statbuf1;
+
 
       if(strcmp(".",entry->d_name)!=0 && strcmp("..",entry->d_name)!=0 && entry->d_name[0] !='.')
       {
@@ -200,55 +221,44 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf,int op
 
          percorsoCartella = strcpy(percorsoCartella,read);
          percorsoCartellaDest = strcpy(percorsoCartellaDest,write);
-         //printf("file: %s\n",entry->d_name);
-
 
          strcat(percorsoCartella,entry->d_name);
-        // strcat(percorsoCartellaDest,entry->d_name);
 
          lstat(percorsoCartella,&statbuf1);
          
-         //printf("%d\n", S_ISDIR(statbuf1.st_mode));
-         dp1 = opendir(percorsoCartella);         
+         dp1 = opendir(percorsoCartella);   
 
-
+         //Se il file trovato non è una cartella, lo inserisco nel file .bkp
          if(!S_ISDIR(statbuf1.st_mode)){
-
-            //CreaArchivio(percorsoCartellaDest, percorsoCartella);
             CreaArchivioCartelle(percorsoCartellaDest, percorsoCartella,op);
          }
          else{
+            //Aggiungo una / al percorso e richiamo il metodo per le cartelle
             strcat(percorsoCartella,"/");
-            //strcat(percorsoCartellaDest,"/");
-
-            //printf("Trovato cartella: %s\n",entry->d_name );
             copia_cartella(percorsoCartella,percorsoCartellaDest,dp1,statbuf1,op);
          }
       }
    }
    }
 }
-//*******************************Estrazione Archivio**********************************************
 
+
+//*******************************Estrazione Archivio**********************************************
+//Metodo che estrae dal file .bkp
 void EstraiArchivio(char* percorso,char* percorsoDest){
 	printf("Estrazione dell'archivio:\n");
 
-    int op = open(percorso,O_RDONLY);
+    int op = open(percorso,O_RDONLY); //Apro il file di lettura
 
-    ScriviFile(op,percorso,percorsoDest);
+    ScriviFile(op,percorso,percorsoDest); //Copio il file 
 
-    close(op);
+    close(op); //Chiudo il file di lettura
 }
 
+//Metodo che analizza il percorso inserito nel file .bkp, e creo tutte le sottocartelle
 void CreaPercorso(char* buf1){
-
-    char* buf=(char*)malloc(sizeof(char)*500);;
-
-    strcpy(buf,buf1);
-
-    printf("%s\n",buf );
-
-  
+    char* buf=(char*)malloc(sizeof(char)*500);
+    strcpy(buf,buf1);  
     int z;
     int ci=0;
     char* cartelle =(char*)malloc(sizeof(char)*500);
@@ -266,42 +276,48 @@ void CreaPercorso(char* buf1){
     }
 }
 
+//Metodo che legge il file .bkp e crea i file/directory lette
 void ScriviFile(int fromfd, char *from, char *to){
+    //Creo la cartella di destinazione passata dall'utente come parametro e ci entro
     CreateFolder(to);
     chdir(to);
+
     int tofd, nread = 1;
     char buf[BUFSIZE1] = "\0";
     char percorso[500];
     int k=0;
     
+    //Finchè non ho finito di leggere il file ciclo
     while(nread>0){
+
+        //Leggo il percorso di destinazione dal file
         while(buf[0] != '\n'){
             read(fromfd, buf, sizeof(buf));
             percorso[k]=buf[0];
             k++;
-            //printf("%c\n",buf[0]);
         }
 
+        //metto carattere di fine stringa al percorso
         percorso[k-1] = '\0';
 
+        //Creo tutte le cartelle e sottocartelle che ci sono nel percorso letto
         CreaPercorso(percorso);
 
-
-        //CreateFolder(percorso);
-
+        //Stringa di fine file
         char fine[10] = "---fine--\n";
         int s = 0;
-          /* Apro i due file */
+
+        //Apro il file di scrittura
         char supp[10];
         if (fromfd  == -1) 
         {
             perror(from);
             return;
         }
-
         tofd = open(percorso, O_WRONLY | O_CREAT );
 
-        /* Leggo da un file e scrivo sull'altro */
+
+        //Leggo da un file e scrivo sull'altro finchè non trovo la stringa di fine file
         while (s!=10 && (nread = read(fromfd, buf, sizeof(buf)) > 0)){
             if(buf[0] != fine[s]){
                 if(s>0){
@@ -317,8 +333,10 @@ void ScriviFile(int fromfd, char *from, char *to){
                 s++;
             }
         }
+
         if (nread == -1)
             perror(from);
+
         /* Chiudo i file e  modifico i permessi */
         close(tofd);
         chmod(percorso, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
@@ -329,6 +347,7 @@ void ScriviFile(int fromfd, char *from, char *to){
     }
 }
 
+//Metodo che crea una cartella
 void CreateFolder(char *dirname){
 
     //crea una nuova cartella con nome: dirname
@@ -336,8 +355,9 @@ void CreateFolder(char *dirname){
    check = mkdir(dirname,0777);
 }
 
-//*******************************Visualizza Archivio**********************************************
 
+//*******************************Visualizza Archivio**********************************************
+//Metodo che visualizza a video tutti i file contenuti nell'archivio (.bkp)
 void VisualizzaArchivio(char* percorsoDest){
 
     int op = open(percorsoDest, O_RDONLY);
