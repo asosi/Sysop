@@ -12,13 +12,20 @@ void initlog(char* app){
 	chdir("/var/log/");
 	mkdir("utility", S_IRWXU|S_IRGRP|S_IXGRP);
 	chdir("utility");
-	if (mkdir(app, S_IRWXU|S_IRGRP|S_IXGRP) != 0){
+	chmod("/var/log/utility", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	char aggiusta[1024];
+	int k= 2;
+	while(k<strlen(app)){
+		aggiusta[k-2] = app[k];
+		k++;
+	}
+	if (mkdir(aggiusta, S_IRWXU|S_IRGRP|S_IXGRP) != 0){
     	perror("FATAL ERROR");
     	exit(EXIT_FAILURE);
     }
-    chdir(app);
+    chdir(aggiusta);
     char file[1024];
-    strcat(file,app);
+    strcat(file,aggiusta);
     strcat(file,".log");
     FILE *open = fopen(file,"r");
     if(open == NULL){
@@ -40,7 +47,12 @@ void writeERROR(char* app, char *ERROR){
 	char nome[1024];
 	chdir("/var/log/utility");
 	chdir(app);
-	strcpy(nome,app);
+	char aggiusta[1024];
+	int k= 2;
+	while(app[k] != '\0'){
+		aggiusta[k-2] = app[k];
+	}
+	strcpy(nome,aggiusta);
 	strcat(nome,".log");
 	FILE *open = fopen(nome,"a");
 	time_t ora = time(NULL);
