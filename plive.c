@@ -7,7 +7,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ncurses.h>
+#include "makelog.h"
 
+char argomento[20];
 
 //struct per contenere dati processo
 struct datiproc{
@@ -41,8 +43,10 @@ void movedir(char *dir){
     struct dirent *entry;
     struct stat statbuf;
 
+    //controllo se riesco ad aprire la directory, se non riesco esco e scrivo in log
     if((dp = opendir(dir)) == NULL) {
         printf("%s\n", "Attenzione! Impossibile aprire la directory /proc/");
+        writeERROR(argomento, "Attenzione! Impossibile aprire la directory /proc/");
         exit(EXIT_FAILURE); 
     }
 
@@ -111,8 +115,10 @@ void infoproc(char *path){
     struct dirent *entry;
     struct stat statbuf;
 
+    //controllo se riesco ad aprire la directory, se non riesco esco e scrivo in log
     if((des = opendir(path)) == NULL) {
         printf("Attenzione! Impossibile aprire la directory %s\n", path);
+        writeERROR(argomento, "Attenzione! Impossibile aprire la directory /proc/<PID>");
         exit(EXIT_FAILURE);
     }
 
@@ -142,6 +148,7 @@ void infoproc(char *path){
 
                 if(!gostatus){
                     printf("Attenzione! Impossibile aprire il file /proc/%s/%s\n", entry->d_name, "stat");
+                    writeERROR(argomento, "Attenzione! Impossibile aprire il file /proc/<PID>/stat");
                     exit(EXIT_FAILURE);
                 }
 
@@ -201,6 +208,7 @@ double calcpu(char *percorso){
 
     if((dir2 = opendir(percorso)) == NULL) {
         printf("Attenzione! Impossibile aprire la directory /proc/\n");
+        writeERROR(argomento, "Attenzione! Impossibile aprire la directory /proc/");
         exit(EXIT_FAILURE);
     }
 
@@ -222,6 +230,7 @@ double calcpu(char *percorso){
 
                 if(!gostat){
                     printf("Attenzione! Impossibile aprire il file /proc/stat\n");
+                    writeERROR(argomento, "Attenzione! Impossibile aprire il file /proc/stat");
                     exit(EXIT_FAILURE);
                 }
 
@@ -282,6 +291,12 @@ int main(int argc, char *argv[]){
     int numerop=0;
     char car; //carattere preso dalla getch
     int timewait = 1;
+	strcpy(argomento,argv[0]);
+	if(argc == 1){
+		initlog(argomento, NULL,NULL,NULL);
+	}else{
+		initlog(argomento, argv[2],NULL,NULL);
+	}
 
     //getopt per passare il parametro -n <numero> , ovvero per mostrare "numero" processi
     while((ch = getopt (argc, argv, "n: ")) != -1){
@@ -290,6 +305,13 @@ int main(int argc, char *argv[]){
                 default: numerop=10;    
         }
     }
+	//controllo se sono inseriti piu di 3 parametri
+	if(argc > 3){
+		printf("%s\n","Troppi argomenti! <eseguibile> -n <num>");
+        	writeERROR(argomento, "Attenzione! Troppi parametri passati");
+        	exit(EXIT_FAILURE); 
+	}
+	
 
     //caso default stampa 10 processi
     if(argv[1] == NULL){
@@ -298,14 +320,25 @@ int main(int argc, char *argv[]){
     }
     //
     if(n==0){
-        printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");    
+        printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");
+        writeERROR(argomento, "Attenzione! Inserimento sbagliato o valore -n <valore> non passato");
+        exit(EXIT_FAILURE);   
     }else{
         //cast della stringa in intero
         numerop = atoi(valore);
+	
     	if(numerop > 40 || numerop < 0){
     		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
+            writeERROR(argomento, "Attenzione! Si possono stampare al massimo 40 processi");
     		exit(EXIT_FAILURE);	
-    	}
+    	}else{
+			char output[256];
+		strcat(output,"Ho stampato a video ");
+		strcat(output, valore);
+		strcat(output," processi");
+		writeOUTPUT(argomento, output);
+	}
+
         do{
             initscr();
             printw("######################################################\n"); 
