@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
             //Controllo se esiste un gia il file .bkp
             int first = open(percorsoDest,O_RDONLY);
             if(first!=NOT_EXIST){
-                writeERROR(argomento,"");
+                writeERROR(argomento,"Il file di destinazione .bkp esiste gia!!!");
                 printf("Il file di destinazione .bkp esiste gia!!!\n");
                 exit(EXIT_FAILURE);
             }
