@@ -33,6 +33,12 @@ char argomento[20];
 
 int main(int argc, char *argv[]){
 
+    if(argc != 5){
+        writeERROR(argomento,"Non hai inserito tutti i parametri necessari");
+        printf("Non hai inserito tutti i parametri necessari\n");        
+        exit(EXIT_FAILURE);        
+    }
+
 	char ch;
 	char* percorsoDest = NULL;
 	char* percorso = NULL;
