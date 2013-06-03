@@ -70,7 +70,6 @@ int main (int argc,char* argv[]){
       int equal;
       equal = trova(contenuto1,contenuto2,dim1,dim2,argv[1],argv[2]);
       if(!equal){
-        allequal = 1;
         //-----------------stampo risultato-------------------------
         //stampando i file che NON compaiono nell'altra directory
         int dim;
@@ -81,12 +80,16 @@ int main (int argc,char* argv[]){
 
         for(i=0; i<dim; i++){
           if(i<dim1){
-            if(!contenuto1[i]->find)
+            if(!contenuto1[i]->find){
               printf("Solo in %s:  %s\n", argv[1], contenuto1[i]->nome);
+              allequal = 1;
+            }
           }
           if(i<dim2){
-            if(!contenuto2[i]->find)
+            if(!contenuto2[i]->find){
               printf("Solo in %s:  %s\n", argv[2], contenuto2[i]->nome);
+              allequal = 1;
+            }
           }
         }
       }
@@ -201,13 +204,14 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
         k=0;
         while(k<dim2){
           //confronto i file che hanno lo stesso nome nelle 2 directory
-          //caso cartella----cartella----stesso nome
-            if(strcmp(contenuto1[i]->nome,contenuto2[k]->nome)==0){
-              if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == DIRECTORY){
+          if(strcmp(contenuto1[i]->nome,contenuto2[k]->nome)==0){
+            //caso cartella----cartella----stesso nome
+            if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == DIRECTORY){
                 contenuto1[i]->find = FIND;
                 contenuto2[k]->find = FIND;
                 k=dim2;
-              }
+            }
+
             //caso cartella----file----stesso nome
             else if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == FILE){
               contenuto1[i]->find = FIND;
@@ -216,6 +220,7 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
               k=dim2;
               allequal = 0;
             }
+
             //caso file----cartella----stesso nome
             else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == DIRECTORY){
               contenuto1[i]->find = FIND;
@@ -224,6 +229,7 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
               k=dim2;
               allequal = 0;
             }
+
             //caso file----file----stesso nome
             else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == FILE){
                 contenuto1[i]->find = FIND;
@@ -242,13 +248,13 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
                 if(equal != 1){
                   if(equal==0)
                     printf("I file %s e %s sono diversi\n", path1, path2);
-                  printf("ssasdds    che cazzo succede?\n");
                   allequal=0;
                 }
-              }
             }
-            else
-              allequal = 0;
+          }
+          else{
+            allequal = 0;
+          }
             k++;
         }
       }
