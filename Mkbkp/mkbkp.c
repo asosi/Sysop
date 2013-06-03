@@ -68,6 +68,7 @@ int main(int argc, char *argv[]){
                 return;                
             }
 
+            printf("Creazione dell'archivio!\n");
   			char* argv1= (char*)malloc(sizeof(char)*500);
 	      	argv1 = strcpy(argv1,percorsoDest);
 
@@ -105,7 +106,6 @@ int main(int argc, char *argv[]){
 //*******************************Creazione Archivio**********************************************
 //Crea l'archivio di un singolo file
 void CreaArchivio(char* percorsoDest, char* percorso){
-	printf("Creazione dell'archivio:\n");
 
     char str[strlen(percorso)];
     strcpy(str,percorso);
@@ -115,12 +115,9 @@ void CreaArchivio(char* percorsoDest, char* percorso){
     char *nome = NULL;
     result = strtok( str, delims );
     while( result != NULL ) {
-        printf( "result is \"%s\"\n", result );
         nome = result;
         result = strtok( NULL, delims );
     }
-
-    printf("Il nome del file è: %s\n", nome);
 
     //Provo ad aprire il file di lettura
     int fromfd;  
@@ -139,7 +136,6 @@ void CreaArchivio(char* percorsoDest, char* percorso){
 
 //Crea l'archivio di una cartella
 void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
-    printf("Creazione dell'archivio:\n");
 
     char str[strlen(percorso)];
     strcpy(str,percorso);
@@ -201,8 +197,6 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf,int op
 
    struct dirent *entry;
 
-   printf("A\n");
-
    //Ciclo su tutti i file contenuti nella cartella
    while((entry = readdir(dp)) != NULL){
 
@@ -246,7 +240,7 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf,int op
 //*******************************Estrazione Archivio**********************************************
 //Metodo che estrae dal file .bkp
 void EstraiArchivio(char* percorso,char* percorsoDest){
-	printf("Estrazione dell'archivio:\n");
+	printf("Estrazione dell'archivio!\n");
 
     int op = open(percorso,O_RDONLY); //Apro il file di lettura
 
@@ -266,7 +260,6 @@ void CreaPercorso(char* buf1){
         if(buf[z]=='/'){
             cartelle[ci] += buf[z];
             ci++;
-            printf("cart: %s\n",cartelle);
             CreateFolder(cartelle);
         }
         else{
@@ -316,7 +309,6 @@ void ScriviFile(int fromfd, char *from, char *to){
         }
         tofd = open(percorso, O_WRONLY | O_CREAT );
 
-
         //Leggo da un file e scrivo sull'altro finchè non trovo la stringa di fine file
         while (s!=10 && (nread = read(fromfd, buf, sizeof(buf)) > 0)){
             if(buf[0] != fine[s]){
@@ -359,6 +351,7 @@ void CreateFolder(char *dirname){
 //*******************************Visualizza Archivio**********************************************
 //Metodo che visualizza a video tutti i file contenuti nell'archivio (.bkp)
 void VisualizzaArchivio(char* percorsoDest){
+    printf("Visualizzazione dell'archivio: I file presenti nel file %s sono:\n",percorsoDest);
 
     int op = open(percorsoDest, O_RDONLY);
     
