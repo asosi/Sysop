@@ -108,7 +108,7 @@ int main (int argc,char* argv[]){
       }
       else{
         printf("Il file %s è una directory, mentre il file %s è un file normale\n", argv[1], argv[2]);
-        writeERROR(argomento,"File confrontati con successo. Sono di tipo diverso");
+        writeOUTPUT(argomento,"File confrontati con successo. Sono di tipo diverso");
         return 1;
       }
     }
@@ -123,7 +123,7 @@ int main (int argc,char* argv[]){
       }
       else{
         printf("Il file %s è un file normale, mentre il file %s è una directory\n", argv[1], argv[2]);
-        writeERROR(argomento,"File confrontati con successo. Sono di tipo diverso");
+        writeOUTPUT(argomento,"File confrontati con successo. Sono di tipo diverso");
         return 1;
       }
     }
