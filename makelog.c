@@ -15,7 +15,7 @@ void initlog(char* app){
 	chmod("/var/log/utility", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	char aggiusta[1024];
 	int k= 2;
-	while(app[k] != '\0'){
+	while(k<strlen(app)){
 		aggiusta[k-2] = app[k];
 	}
 	if (mkdir(aggiusta, S_IRWXU|S_IRGRP|S_IXGRP) != 0){
