@@ -23,7 +23,7 @@ void infoproc(char *path);
 double calcpu(char *percorso);
 void percpu(int nproc);
 void merge(int start, int center, int end);
-void mergesort(int start, int end);
+void Mergesort(int start, int end);
 void stampaProcessi(int n);
 
 //numero processi
@@ -333,7 +333,7 @@ int main(int argc, char *argv[]){
 
 void stampaProcessi(int n){
     int i;
-    mergesort(0,nproc-1);
+    Mergesort(0,nproc-1);
     for(i=0; i<n; i++)
         printw("#%8s|%8s|%10f %%|%20s #\n",elenco[i]->pid, elenco[i]->ppid, elenco[i]->percentuale, elenco[i]->name);
 }
@@ -368,11 +368,11 @@ void merge(int start, int center, int end){
     elenco[i] = supp[i-start];
 }
 
-void mergesort(int start, int end){
+void Mergesort(int start, int end){
   if(start<end){
     int center = (start+end)/2;
-    mergesort(start,center);
-    mergesort(center+1,end);
+    Mergesort(start,center);
+    Mergesort(center+1,end);
     merge(start,center,end);
   }
 }
