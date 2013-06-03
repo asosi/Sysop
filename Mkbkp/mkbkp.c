@@ -95,7 +95,9 @@ int main(int argc, char *argv[]){
             }
 
             printf("Creazione dell'archivio!\n");
-  			char* argv1= (char*)malloc(sizeof(char)*500);
+            writeOUTPUT(argomento,"Creazione dell'archivio!");
+  			
+            char* argv1= (char*)malloc(sizeof(char)*500);
 	      	argv1 = strcpy(argv1,percorsoDest);
 
 		    DIR *dp;
@@ -285,6 +287,7 @@ void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf,int op
 //Metodo che estrae dal file .bkp
 void EstraiArchivio(char* percorso,char* percorsoDest){
 	printf("Estrazione dell'archivio!\n");
+    writeOUTPUT(argomento,"Estrazione dell'archivio!");
 
     int op = open(percorso,O_RDONLY); //Apro il file di lettura
 
@@ -398,6 +401,7 @@ void CreateFolder(char *dirname){
 //Metodo che visualizza a video tutti i file contenuti nell'archivio (.bkp)
 void VisualizzaArchivio(char* percorsoDest){
     printf("Visualizzazione dell'archivio: I file presenti nel file %s sono:\n",percorsoDest);
+    writeOUTPUT(argomento,"Visualizzazione dell'archivio!");
 
     int op = open(percorsoDest, O_RDONLY);
     
