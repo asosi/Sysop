@@ -33,6 +33,10 @@ char argomento[20];
 
 int main(int argc, char *argv[]){
 
+
+    strcpy(argomento,argv[0]);
+    initlog(argomento);
+
     if(argc != 5){
         writeERROR(argomento,"Non hai inserito tutti i parametri necessari");
         printf("Non hai inserito tutti i parametri necessari\n");        
@@ -44,7 +48,6 @@ int main(int argc, char *argv[]){
 	char* percorso = NULL;
 	int c = 0, x = 0, t = 0;
 
-    strcpy(argomento,argv[0]);
 
     // controllo parametri passato all'eseguibile
 	while ((ch = getopt (argc, argv, "f: cxt")) != -1){
