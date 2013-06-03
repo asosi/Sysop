@@ -96,10 +96,22 @@ int main(int argc, char *argv[]){
                 chmod(percorsoDest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		    }
     	}
-    	else if(x == 1) // Estraggo il file .bkp
+    	else if(x == 1){ // Estraggo il file .bkp
+            int first = open(percorsoDest,O_RDONLY);
+            if(first==-1){
+                printf("Il file da estrarre (.bkp) non esite!!!\n");
+                return;
+            }
             EstraiArchivio(percorsoDest,percorso);
-    	else if(t == 1) //Visualizzo a video il file .bkp
+        }
+    	else if(t == 1){ //Visualizzo a video il file .bkp
+            int first = open(percorsoDest,O_RDONLY);
+            if(first==-1){
+                printf("Il file da visualizzare (.bkp) non esite!!!\n");
+                return;
+            }
             VisualizzaArchivio(percorsoDest);
+        }
     }
 }
 
@@ -307,6 +319,7 @@ void ScriviFile(int fromfd, char *from, char *to){
             perror(from);
             return;
         }
+
         tofd = open(percorso, O_WRONLY | O_CREAT );
 
         //Leggo da un file e scrivo sull'altro finchè non trovo la stringa di fine file
@@ -336,6 +349,7 @@ void ScriviFile(int fromfd, char *from, char *to){
         nread = read(fromfd, buf, sizeof(buf));
         percorso[0] = buf[0];
         k = 1;
+        
     }
 }
 
