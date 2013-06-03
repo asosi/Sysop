@@ -50,7 +50,6 @@ int main (int argc,char* argv[]){
 		exit(EXIT_FAILURE);
   }
 	else{
-    printf("%s\n", argv[2]);
     initlog(argv[0],argv[1],argv[2],NULL);
     int firstISdir = isDir(argv[1]);
     int secondISdir = isDir(argv[2]);
@@ -254,7 +253,7 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
       }
     }
     else
-      allequal=0;
+      allequal=1;
     return allequal;
 }
 //guarda se dir é una directory....in tal caso ritorna DIRECTORY, else FILE
