@@ -12,6 +12,18 @@ plive: ${OBJECT}
 plive.o: ${SOURCE}
 	@${CC} -c ${SOURCE}
 
+mkbkp: ${OBJECT}
+	@${CC} ${OBJECT} -o ${EXECUTABLE}
+
+mkbkp.o: ${SOURCE}
+	@${CC} -c ${SOURCE}
+
+equals: ${OBJECT}
+	@${CC} ${OBJECT} -o ${EXECUTABLE}
+
+equals.o: ${SOURCE}
+	@${CC} -c ${SOURCE}
+
 cleanob:
 	@rm ${OBJECT}
 	@rm -rf ${SOURCE}~
