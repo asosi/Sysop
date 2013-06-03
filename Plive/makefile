@@ -7,13 +7,13 @@ EXECUTABLE=plive
 all: ${EXECUTABLE} cleanob
 
 plive: ${OBJECT}
-	${CC} ${OBJECT} -o ${EXECUTABLE} ${CUFLAGS}
+	@${CC} ${OBJECT} -o ${EXECUTABLE} ${CUFLAGS}
 
 plive.o: ${SOURCE}
-	${CC} -c ${SOURCE}
+	@${CC} -c ${SOURCE}
 
 cleanob:
-	rm ${OBJECT}
+	@rm ${OBJECT}
 
 clean:
-	rm -rf *o ${EXECUTABLE}
+	@rm -rf *o ${EXECUTABLE}
