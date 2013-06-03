@@ -242,6 +242,7 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
                 if(equal != 1){
                   if(equal==0)
                     printf("I file %s e %s sono diversi\n", path1, path2);
+                  printf("ssasdds    che cazzo succede?\n");
                   allequal=0;
                 }
               }
@@ -252,7 +253,9 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
         }
       }
     }
-    else
+    else if(dim1 != dim2)
+      allequal = 0;
+    if(dim1==dim2 && dim1 == 0)
       allequal=1;
     return allequal;
 }
