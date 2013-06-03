@@ -35,7 +35,7 @@ int main(int argc, char *argv[]){
 
 
     strcpy(argomento,argv[0]);
-    initlog(argomento);
+    initlog(argomento,argv[1],argv[3],argv[4]);
 
     if(argc != 5){
         writeERROR(argomento,"Non hai inserito tutti i parametri necessari");
