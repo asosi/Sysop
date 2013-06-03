@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include "makelog.h"
 
-void initlog(char* app){
+void initlog(char* app, char* parametro1, char* parametro2, char* parametro3){
 	char cwd[1024];
 	getcwd(cwd, sizeof(cwd));
 
@@ -40,7 +40,22 @@ void initlog(char* app){
 	strcpy(FILE,"plive: ");
 	strcat(FILE, "   ");
 	strcat(FILE, "comando lanciato");
-	strcat(FILE,"\n");
+	if(parametro1 != NULL){
+		strcat(FILE, " con parametri: ");
+		strcat(FILE, parametro1);
+		if(parametro2 != NULL)
+		{
+			strcat(FILE, " ");
+			strcat(FILE, parametro2);
+			if(parametro2 != NULL)
+			{
+				strcat(FILE, " ");
+				strcat(FILE, parametro3);
+			}
+		}
+	}
+	else
+		strcat(FILE,"\n");
 	fputs(FILE,open);
 	fclose(open);	
     chdir(cwd);
