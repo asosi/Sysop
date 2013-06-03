@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ncurses.h>
+#include "makelog.h"
 
 
 //struct per contenere dati processo
@@ -41,8 +42,10 @@ void movedir(char *dir){
     struct dirent *entry;
     struct stat statbuf;
 
+    //controllo se riesco ad aprire la directory, se non riesco esco e scrivo in log
     if((dp = opendir(dir)) == NULL) {
         printf("%s\n", "Attenzione! Impossibile aprire la directory /proc/");
+        writeERROR(argv[0], "Attenzione! Impossibile aprire la directory /proc/");
         exit(EXIT_FAILURE); 
     }
 
@@ -111,8 +114,10 @@ void infoproc(char *path){
     struct dirent *entry;
     struct stat statbuf;
 
+    //controllo se riesco ad aprire la directory, se non riesco esco e scrivo in log
     if((des = opendir(path)) == NULL) {
         printf("Attenzione! Impossibile aprire la directory %s\n", path);
+        writeERROR(argv[0], "Attenzione! Impossibile aprire la directory /proc/<PID>");
         exit(EXIT_FAILURE);
     }
 
@@ -142,6 +147,7 @@ void infoproc(char *path){
 
                 if(!gostatus){
                     printf("Attenzione! Impossibile aprire il file /proc/%s/%s\n", entry->d_name, "stat");
+                    writeERROR(argv[0], "Attenzione! Impossibile aprire il file /proc/<PID>/stat");
                     exit(EXIT_FAILURE);
                 }
 
@@ -201,6 +207,7 @@ double calcpu(char *percorso){
 
     if((dir2 = opendir(percorso)) == NULL) {
         printf("Attenzione! Impossibile aprire la directory /proc/\n");
+        writeERROR(argv[0], "Attenzione! Impossibile aprire la directory /proc/");
         exit(EXIT_FAILURE);
     }
 
@@ -222,6 +229,7 @@ double calcpu(char *percorso){
 
                 if(!gostat){
                     printf("Attenzione! Impossibile aprire il file /proc/stat\n");
+                    writeERROR(argv[0], "Attenzione! Impossibile aprire il file /proc/stat");
                     exit(EXIT_FAILURE);
                 }
 
@@ -298,12 +306,15 @@ int main(int argc, char *argv[]){
     }
     //
     if(n==0){
-        printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");    
+        printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");
+        writeERROR(argv[0], "Attenzione! Inserimento sbagliato o valore -n <valore> non passato");
+        exit(EXIT_FAILURE);   
     }else{
         //cast della stringa in intero
         numerop = atoi(valore);
     	if(numerop > 40 || numerop < 0){
     		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
+            writeERROR(argv[0], "Attenzione! Si possono stampare al massimo 40 processi");
     		exit(EXIT_FAILURE);	
     	}
         do{
