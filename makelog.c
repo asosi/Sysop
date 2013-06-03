@@ -61,3 +61,4 @@ void writeERROR(char* app, char *ERROR){
 	fputs("************************************************************\n",open);
 	fclose(open);	
 }
+
