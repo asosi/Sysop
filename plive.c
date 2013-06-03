@@ -327,6 +327,12 @@ int main(int argc, char *argv[]){
         //cast della stringa in intero
         numerop = atoi(valore);
 	
+	//mi serve per uscire se come parametro dopo -n mi passa dei caratteri
+	if(numerop == 0){
+		printf("%s\n","Passare un numero da 1 a 40 dopo -n");
+       		writeERROR(argomento, "Attenzione! Passare un numero da 1 a 40 dopo -n");
+        	exit(EXIT_FAILURE); 
+	}
     	if(numerop > 40 || numerop < 0){
     		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
             writeERROR(argomento, "Attenzione! Si possono stampare al massimo 40 processi");
