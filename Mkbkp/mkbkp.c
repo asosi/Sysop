@@ -154,7 +154,7 @@ void CreaArchivio(char* percorsoDest, char* percorso){
     int fromfd;  
     if ((fromfd = open(percorso, O_RDONLY)) == -1) 
     {
-        writeERROR(argomento,perror(percorso));                
+        writeERROR(argomento,"Impossibile aprire il file di lettura");                
         perror(percorso);
         exit(EXIT_FAILURE);
     }
@@ -176,7 +176,7 @@ void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
     int fromfd;  
     if ((fromfd = open(percorso, O_RDONLY)) == -1) 
     {
-        writeERROR(argomento,perror(percorso));  
+        writeERROR(argomento,"Impossibile aprire il file di lettura");
       perror(percorso);
       exit(EXIT_FAILURE);
     }
@@ -192,14 +192,14 @@ void copia_file(char* percorso, char *from, char* to, int tofd) {
   /* Apro i due file */
   if ((fromfd = open(from, O_RDONLY)) == -1) 
     {
-        writeERROR(argomento,perror(percorso));  
+        writeERROR(argomento,"Impossibile aprire il file di lettura");
       perror(from);
       exit(EXIT_FAILURE);
     }
 
   if (tofd == -1) 
     {
-        writeERROR(argomento,perror(to));  
+        writeERROR(argomento,"Impossibile aprire il file di scrittura");
       perror(to);
       return;
     }
