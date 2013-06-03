@@ -34,6 +34,19 @@ char argomento[20];
 int main(int argc, char *argv[]){
 
 
+    if(argc < 2){
+        argv[1] = NULL;
+        argv[3] = NULL;
+        argv[4] = NULL;
+    }
+    if(argc <= 3){
+        argv[3] = NULL;
+        argv[4] = NULL;
+    }
+    if(argc < 5){
+        argv[4] = NULL;
+    }
+
     strcpy(argomento,argv[0]);
     initlog(argomento,argv[1],argv[3],argv[4]);
 
