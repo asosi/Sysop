@@ -33,7 +33,6 @@ char argomento[20];
 
 int main(int argc, char *argv[]){
 
-
     if(argc < 2){
         argv[1] = NULL;
         argv[3] = NULL;
@@ -47,6 +46,18 @@ int main(int argc, char *argv[]){
         argv[4] = NULL;
     }
 
+    char str[50];
+    strcpy(str,argv[3]);
+    char delims[] = ".";
+    char *result = NULL;
+    result = strtok( str, delims );
+    char *nome = NULL;
+    while( result != NULL ) {
+        printf( "result is \"%s\"\n", result );
+        nome = result;
+        result = strtok( NULL, delims );
+    }
+
     strcpy(argomento,argv[0]);
     initlog(argomento,argv[1],argv[3],argv[4]);
 
@@ -54,6 +65,13 @@ int main(int argc, char *argv[]){
         writeERROR(argomento,"Non hai inserito tutti i parametri necessari");
         printf("Non hai inserito tutti i parametri necessari\n");        
         exit(EXIT_FAILURE);        
+    }
+
+    
+    if(nome[0]!='b'||nome[1]!='k'||nome[2]!='p'){
+        writeERROR(argomento,"Estensione sbagliata nel file di archivio, deve essere .bkp");
+        printf("Estensione sbagliata nel file di archivio, deve essere .bkp\n");        
+        exit(EXIT_FAILURE); 
     }
 
 	char ch;
