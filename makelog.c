@@ -33,11 +33,20 @@ void initlog(char* app){
     }
     else
     	fclose(openr);
+	FILE *open = fopen(file,"a");
+	time_t ora = time(NULL);
+	char FILE[1024];
+	fputs(asctime(localtime(&ora)),open);
+	strcpy(FILE,"plive: ");
+	strcat(FILE, "   ");
+	strcat(FILE, "comando lanciato");
+	strcat(FILE,"\n");
+	fputs(FILE,open);
+	fclose(open);	
     chdir(cwd);
 }
 
 void writeERROR(char* app, char *ERROR){
-	initlog(app);
 	char cwd[1024];
 	getcwd(cwd, sizeof(cwd));
 
@@ -58,7 +67,33 @@ void writeERROR(char* app, char *ERROR){
 	strcat(ERRORE, ERROR);
 	strcat(ERRORE,"\n");
 	fputs(ERRORE,open);
-	fputs("************************************************************\n",open);
-	fclose(open);	
+	fputs("*****************************************************************\n",open);
+	fclose(open);
+	chdir(cwd);	
 }
 
+void writeOUTPUT(char* app, char *OUT){
+	char cwd[1024];
+	getcwd(cwd, sizeof(cwd));
+
+	char nome[1024];
+	chdir("/var/log/utility");
+	chdir(app);
+	char aggiusta[1024];
+	int k= 2;
+	strcpy(aggiusta,app+2);
+	strcpy(nome,aggiusta);
+	strcat(nome,".log");
+	FILE *open = fopen(nome,"a");
+	time_t ora = time(NULL);
+	char OUTPUT[1024];
+	fputs(asctime(localtime(&ora)),open);
+	strcpy(OUTPUT,"OUTPUT: ");
+	strcat(OUTPUT, "   ");
+	strcat(OUTPUT, OUT);
+	strcat(OUTPUT,"\n");
+	fputs(OUTPUT,open);
+	fputs("*****************************************************************\n",open);
+	fclose(open);
+	chdir(cwd);
+}
