@@ -17,6 +17,7 @@ void initlog(char* app){
 	int k= 2;
 	while(k<strlen(app)){
 		aggiusta[k-2] = app[k];
+		k++;
 	}
 	if (mkdir(aggiusta, S_IRWXU|S_IRGRP|S_IXGRP) != 0){
     	perror("FATAL ERROR");
