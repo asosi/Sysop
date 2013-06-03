@@ -28,6 +28,7 @@ void stampaProcessi(int n);
 
 //numero processi
 int nproc = 0;
+//numero di processi da stampare
 int numerop=0;
 
 struct datiproc** elenco;
@@ -36,13 +37,13 @@ struct datiproc** elenco;
 void movedir(char *dir){
 
     elenco = malloc(sizeof(struct datiproc*));
-
     DIR *dp;
     struct dirent *entry;
     struct stat statbuf;
+
     if((dp = opendir(dir)) == NULL) {
-        perror(dir);
-        return;
+        printf("%s\n", "Attenzione! Impossibile aprire la directory /proc/");
+        exit(EXIT_FAILURE); 
     }
 
     chdir(dir);
@@ -50,7 +51,6 @@ void movedir(char *dir){
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
 
-        // SO CHE é UNA CHECCA COME COSA!
         // controllo se ci sono elementi che iniziano con lettere o elementi .<nomefile> (nascosti) e li ignoro
         if(entry->d_name[0] == '.' || entry->d_name[0] == 'a' || entry->d_name[0] == 'b' || entry->d_name[0] == 'c' || entry->d_name[0] == 'd' || entry->d_name[0] == 'e' || entry->d_name[0] == 'f' || entry->d_name[0] == 'g' || entry->d_name[0] == 'h' || entry->d_name[0] == 'i' || entry->d_name[0] == 'j' || entry->d_name[0] == 'k' || entry->d_name[0] == 'l' || entry->d_name[0] == 'm' || entry->d_name[0] == 'n' || entry->d_name[0] == 'o' || entry->d_name[0] == 'p' || entry->d_name[0] == 'q' || entry->d_name[0] == 'r' || entry->d_name[0] == 's' || entry->d_name[0] == 't' || entry->d_name[0] == 'u' || entry->d_name[0] == 'v' || entry->d_name[0] == 'w' || entry->d_name[0] == 'x' || entry->d_name[0] == 'y' || entry->d_name[0] == 'z'
              || entry->d_name[0] == 'A'
@@ -90,14 +90,13 @@ void movedir(char *dir){
             
             //concateno la stringa della dir con la cartella per creare il path di ogni cartella dei proc
             char new_path[256];
-            new_path[0] = '\0';  // ensures the memory is an empty string
+            new_path[0] = '\0';  //stringa vuota
             strcat(new_path,dir);
             strcat(new_path,entry->d_name);
             strcat(new_path,"/");
 
             //chiamo la funzione che entra nella sottodirectory del processo
             infoproc(new_path);
-
         }
     }
     closedir(dp);
@@ -108,14 +107,13 @@ void infoproc(char *path){
 
     FILE *gostatus;
     char parola[1024];
-
-
     DIR *des;
     struct dirent *entry;
     struct stat statbuf;
+
     if((des = opendir(path)) == NULL) {
-        perror(path);
-        return;
+        printf("Attenzione! Impossibile aprire la directory %s\n", path);
+        exit(EXIT_FAILURE);
     }
 
     chdir(path);
@@ -143,8 +141,16 @@ void infoproc(char *path){
 
 
                 if(!gostatus){
-                    printf("%s\n", "Errore apertura file 'proc/%s/stat'!",entry->d_name);
+                    printf("Attenzione! Impossibile aprire il file /proc/%s/%s\n", entry->d_name, "stat");
+                    exit(EXIT_FAILURE);
                 }
+
+                //File /proc/<PID>/stat contiene
+                //Posizione 1 : PID
+                //Posizione 2 : Nome dell' eseguibile del processo
+                //Posizione 4 : PPID
+                //Posizione 14 : utime
+                //Posizione 15 : stime
 
                 fscanf(gostatus,"%s", parola);
                 strcpy(elenco[nproc]->pid, parola);
@@ -186,19 +192,16 @@ double calcpu(char *percorso){
 
     FILE *gostat;
     char parola[1024];
-
-    //variabile per calcolo CPU total
     double totalCPU = 0.0;
-
     double temp = 0.0;
-
     DIR *dir2;
 
     struct dirent *entry;
     struct stat statbuf;
+
     if((dir2 = opendir(percorso)) == NULL) {
-        perror(percorso);
-        return;
+        printf("Attenzione! Impossibile aprire la directory /proc/\n");
+        exit(EXIT_FAILURE);
     }
 
     chdir(percorso);
@@ -218,10 +221,11 @@ double calcpu(char *percorso){
                 gostat = fopen("stat", "r");
 
                 if(!gostat){
-                    printf("%s\n", "Errore apertura file 'proc/stat'!");
+                    printf("Attenzione! Impossibile aprire il file /proc/stat\n");
+                    exit(EXIT_FAILURE);
                 }
 
-                // fscanf mi prende una parola alla volta del file
+                //fscanf mi prende una parola alla volta del file
                 while(!feof(gostat)){
 
                     fscanf(gostat,"%s", parola);
@@ -229,15 +233,13 @@ double calcpu(char *percorso){
                     if(strcmp("cpu", parola) == 0){
                         continue;
                     }
-                      if(strcmp("cpu0", parola) == 0){
+                    if(strcmp("cpu0", parola) == 0){
                         closedir(dir2);
                         fclose(gostat);
                         return totalCPU;
                     }
-
                     temp = atof(parola);
-                    totalCPU += temp;
-                    
+                    totalCPU += temp;               
                 }
             }
         }
@@ -246,13 +248,11 @@ double calcpu(char *percorso){
 
 
 
-// funzione per calcolare la % della cpu usata da un processo
+//funzione per calcolare la % della cpu usata da un processo
 void percpu(int nproc){
 
     double per = 0.0;
     double cpu_total = 0.0;
-
-
     double pcpu = 0.0;
     double utime = 0.0;
     double stime = 0.0;
@@ -265,9 +265,10 @@ void percpu(int nproc){
     //calcolo CPU processo con utime e stime
     pcpu = utime + stime;
 
+    //calcolo %CPU processo
     per = (pcpu / cpu_total)*100.0;
 
-    //calcolo percentuale finale
+    //inserimento valore
     elenco[nproc]->percentuale = per;
 }
 
@@ -279,11 +280,9 @@ int main(int argc, char *argv[]){
     int n = 0;
     char* valore;
     int numerop=0;
-    
-
-    //carattere preso dalla getch
-    char car;
+    char car; //carattere preso dalla getch
     int timewait = 1;
+
     //getopt per passare il parametro -n <numero> , ovvero per mostrare "numero" processi
     while((ch = getopt (argc, argv, "n: ")) != -1){
         switch (ch){
@@ -292,36 +291,37 @@ int main(int argc, char *argv[]){
         }
     }
 
-    // caso default stampa 10 processi
+    //caso default stampa 10 processi
     if(argv[1] == NULL){
         n++;
         valore="10";
     }
-
+    //
     if(n==0){
         printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");    
     }else{
         //cast della stringa in intero
         numerop = atoi(valore);
-	if(numerop > 40 || numerop < 0){
-		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
-		exit(EXIT_FAILURE);	
-	}
+    	if(numerop > 40 || numerop < 0){
+    		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
+    		exit(EXIT_FAILURE);	
+    	}
         do{
             initscr();
             printw("######################################################\n"); 
             printw("#%8s %8s   %8s   %20s #\n", "<PID>","<PPID>","<%CPU>","<Name>");
-		printw("######################################################\n"); 
+            printw("######################################################\n"); 
             timeout(timewait*1000);
             scrollok(stdscr,TRUE);
             movedir("/proc/");
        	    stampaProcessi(numerop);
-		printw("######################################################\n");
-		printw("Premere 'q' o 'Q' per uscire.\n");
+		    printw("######################################################\n");
+		    printw("Premere 'q' o 'Q' per uscire.\n");
             nproc=0;
             car = getch();
-            if(car>48 && car<58)
+            if(car>48 && car<58){
                 timewait = car-48;
+            }
             clear();
             refresh();
         }
@@ -334,8 +334,9 @@ int main(int argc, char *argv[]){
 void stampaProcessi(int n){
     int i;
     Mergesort(0,nproc-1);
-    for(i=0; i<n; i++)
+    for(i=0; i<n; i++){
         printw("#%8s|%8s|%10f %%|%20s #\n",elenco[i]->pid, elenco[i]->ppid, elenco[i]->percentuale, elenco[i]->name);
+    }
 }
 
 void merge(int start, int center, int end){
