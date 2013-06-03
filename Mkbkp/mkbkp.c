@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "makelog.h"
 #define BUFSIZE 512
 #define BUFSIZE1 1
 #define NOT_EXIST -1
@@ -27,12 +28,17 @@ void CreateFolder(char *dirname);
 void VisualizzaArchivio(char* argv1);
 //****************************************************************************
 
+char argomento[20];
+
+
 int main(int argc, char *argv[]){
 
 	char ch;
 	char* percorsoDest = NULL;
 	char* percorso = NULL;
 	int c = 0, x = 0, t = 0;
+
+    strcpy(argomento,argv[0]);
 
     // controllo parametri passato all'eseguibile
 	while ((ch = getopt (argc, argv, "f: cxt")) != -1){
@@ -45,27 +51,38 @@ int main(int argc, char *argv[]){
     }
 
     //Controllo i parametri inseriti
-    if(percorso == NULL && c == 1)
-    printf("Non hai inserito l'archivio da creare\n");
-    else if(percorso == NULL && x == 1)
-    	printf("Non hai inserito l'archivio da estrarre\n");    
-    else if(percorso == NULL && t == 1)
+    if(percorso == NULL && c == 1){
+        writeERROR(argomento,"Non hai inserito l'archivio da creare");
+        printf("Non hai inserito l'archivio da creare\n");        
+        exit(EXIT_FAILURE);
+    }
+    else if(percorso == NULL && x == 1){
+        writeERROR(argomento,"Non hai inserito l'archivio da estrarre");
+    	printf("Non hai inserito l'archivio da estrarre\n"); 
+        exit(EXIT_FAILURE);
+    }   
+    else if(percorso == NULL && t == 1){
+        writeERROR(argomento,"Non hai inserito l'archivio da visualizzare");
     	printf("Non hai inserito l'archivio da visualizzare\n");
+        exit(EXIT_FAILURE);
+    }
     else{
         //Creo il file .bkp
     	if(c == 1){ 
             //Controllo se esiste un gia il file .bkp
             int first = open(percorsoDest,O_RDONLY);
             if(first!=NOT_EXIST){
+                writeERROR(argomento,"");
                 printf("Il file di destinazione .bkp esiste gia!!!\n");
-                return;
+                exit(EXIT_FAILURE);
             }
 
             //Controllo se la cartella/file da copiare esiste
             int second = open(percorso,O_RDONLY);
             if(second==-1){
+                writeERROR(argomento,"Il file/directory da copiare non esiste!!!");
                 printf("Il file/directory da copiare non esiste!!!\n");
-                return;                
+                exit(EXIT_FAILURE);
             }
 
             printf("Creazione dell'archivio!\n");
@@ -99,16 +116,18 @@ int main(int argc, char *argv[]){
     	else if(x == 1){ // Estraggo il file .bkp
             int first = open(percorsoDest,O_RDONLY);
             if(first==-1){
+                writeERROR(argomento,"Il file da estrarre (.bkp) non esite!!!");
                 printf("Il file da estrarre (.bkp) non esite!!!\n");
-                return;
+                exit(EXIT_FAILURE);
             }
             EstraiArchivio(percorsoDest,percorso);
         }
     	else if(t == 1){ //Visualizzo a video il file .bkp
             int first = open(percorsoDest,O_RDONLY);
             if(first==-1){
+                writeERROR(argomento,"Il file da visualizzare (.bkp) non esite!!!");
                 printf("Il file da visualizzare (.bkp) non esite!!!\n");
-                return;
+                exit(EXIT_FAILURE);                
             }
             VisualizzaArchivio(percorsoDest);
         }
@@ -135,8 +154,9 @@ void CreaArchivio(char* percorsoDest, char* percorso){
     int fromfd;  
     if ((fromfd = open(percorso, O_RDONLY)) == -1) 
     {
-      perror(percorso);
-      exit(EXIT_FAILURE);
+        writeERROR(argomento,perror(percorso));                
+        perror(percorso);
+        exit(EXIT_FAILURE);
     }
 
 
@@ -156,6 +176,7 @@ void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
     int fromfd;  
     if ((fromfd = open(percorso, O_RDONLY)) == -1) 
     {
+        writeERROR(argomento,perror(percorso));  
       perror(percorso);
       exit(EXIT_FAILURE);
     }
@@ -171,12 +192,14 @@ void copia_file(char* percorso, char *from, char* to, int tofd) {
   /* Apro i due file */
   if ((fromfd = open(from, O_RDONLY)) == -1) 
     {
+        writeERROR(argomento,perror(percorso));  
       perror(from);
       exit(EXIT_FAILURE);
     }
 
   if (tofd == -1) 
     {
+        writeERROR(argomento,perror(to));  
       perror(to);
       return;
     }
