@@ -14,6 +14,7 @@ plive.o: ${SOURCE}
 
 cleanob:
 	@rm ${OBJECT}
+	@rm -rf ${SOURCE}~
 
 clean:
 	@rm -rf *o ${EXECUTABLE}
