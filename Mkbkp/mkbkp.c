@@ -15,22 +15,17 @@
 
 //***********************************HEADER***********************************
 void CreaArchivio(char* percorsoDest, char* percorso);
-void EstraiArchivio(char* percorso,char* percorsoDest);
-void VisualizzaArchivio(char* argv1);
-
+void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op);
 void copia_file(char* percorso, char *from, char* to, int tofd);
 void copia_cartella(char* read, char* write, DIR *dp, struct stat statbuf,int op);
-void StampaBKP(char k,char* percorsoDest, char*percorso1);
 
-void LeggiFile(int fromfd, char *from, char *to);
-void CreateFolder(char *dirname);
+void EstraiArchivio(char* percorso,char* percorsoDest);
+void CreaPercorso(char* buf1);
 void ScriviFile(int fromfd, char *from, char *to);
+void CreateFolder(char *dirname);
+
+void VisualizzaArchivio(char* argv1);
 //****************************************************************************
-
-
-char* inizio = "--------------------------------------------------------------------inizio----------------------------------------------------------------\n";
-char* fine = "--------------------------------------------------------------------fine--------------------------------------------------------------------\n";
-char* riga = "\n--------------------------------------------------------------------------------------------------------------------------------------------\n";
 
 int main(int argc, char *argv[]){
 
@@ -94,23 +89,12 @@ int main(int argc, char *argv[]){
     	else if(x == 1) EstraiArchivio(percorsoDest,percorso);
     	else if(t == 1) VisualizzaArchivio(percorsoDest);
     }
-
 }
 
 //*******************************Creazione Archivio**********************************************
 
 void CreaArchivio(char* percorsoDest, char* percorso){
 	printf("Creazione dell'archivio:\n");
-
-   /* printf("%s\n", percorso);
-    printf("%s\n", percorsoDest);
-
-	StampaBKP('i',percorsoDest,NULL); //inizio
-	StampaBKP('n',percorsoDest,percorso); //percorso
-
-    StampaBKP('-',percorsoDest,NULL); //riga vuota
-	//StampaBKP('r',percorsoDest,NULL); //riga
-	*/
 
     char str[strlen(percorso)];
     strcpy(str,percorso);
@@ -144,9 +128,6 @@ void CreaArchivio(char* percorsoDest, char* percorso){
     close(op);
 
     chmod(percorsoDest, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-
-	//StampaBKP('-',percorsoDest,NULL); //riga vuota
-	//StampaBKP('f',percorsoDest,NULL); //finee
 }
 
 void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
@@ -154,20 +135,7 @@ void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
 
     char str[strlen(percorso)];
     strcpy(str,percorso);
-/*
-    char delims[] = "/";
-    char *result = NULL;
-    char *nome = NULL;
-    result = strtok( str, delims );
 
-    while( result != NULL) {
-        printf( "result is \"%s\"\n", result );
-        nome = result;
-        result = strtok( NULL, delims );
-    }
-
-    printf("Il nome del file è: %s\n", nome);
-*/
     //Provo ad aprire il file di lettura
     int fromfd;  
     if ((fromfd = open(percorso, O_RDONLY)) == -1) 
@@ -177,27 +145,6 @@ void CreaArchivioCartelle(char* percorsoDest, char* percorso, int op){
     }
 
     copia_file(percorso,percorso,percorsoDest,op);
-
-}
-
-void StampaBKP(char k,char* percorso, char*percorso1){
-	FILE *buf_write;
-	if(k!='0')
-    	buf_write = fopen(percorso, "a");
-    else
-    	buf_write = fopen(percorso, "w");
-
-    char ch;
-
-    switch(k){
-    	case '0': fputs("",buf_write); break;          //svuota il file
-    	case 'i': fputs(inizio,buf_write); break;      //inserisco linea inizio file
-    	case 'f': fputs(fine,buf_write); break;        //inserisco linea fine file
-    	case 'r': fputs(riga,buf_write); break;        //inserisco riga di -
-    	case 'n': fputs(percorso1,buf_write); break;   //inserisco percorso file
-    	case '-': fputc('\n',buf_write);break;         //inserisco \n finale per ogni riga
-      }
-	fclose(buf_write);
 }
 
 void copia_file(char* percorso, char *from, char* to, int tofd) {
@@ -336,13 +283,6 @@ void ScriviFile(int fromfd, char *from, char *to){
         }
 
         percorso[k-1] = '\0';
-  
-        printf("%s\n", percorso);
-
-
-        printf("%s\n","************************************" );
-        printf("%s\n",percorso);
-        printf("%s\n","************************************" );
 
         CreaPercorso(percorso);
 
@@ -394,50 +334,54 @@ void CreateFolder(char *dirname){
     //crea una nuova cartella con nome: dirname
    int check;
    check = mkdir(dirname,0777);
-
-   //if(!check)
-   //printf("Creata cartella: %s\n", dirname);
 }
 
 //*******************************Visualizza Archivio**********************************************
 
-void VisualizzaArchivio(char* argv1){
-	printf("Visualizzazione dell'archivio, i file presenti sono:\n");
+void VisualizzaArchivio(char* percorsoDest){
 
-    FILE *buf_read;
-    char buf[1000];
-    char* ch;
-    int k = 0;
+    int op = open(percorsoDest, O_RDONLY);
+    
+    int nread = 1;
+    char buf[BUFSIZE1] = "\0";
+    char percorso[500];
+    int k=0;
+    
+    while(nread>0){
+        while(buf[0] != '\n'){
+            read(op, buf, sizeof(buf));
+            percorso[k]=buf[0];
+            k++;
+            //printf("%c\n",buf[0]);
+        }
 
-    buf_read = fopen(argv1, "r");
+        percorso[k-1] = '\0';
 
-    while(1) {
-        ch=fgets(buf, 1000, buf_read);
-        if( ch==NULL )
-            break;
-         if(strcmp(buf,inizio)==0)
-            k = 1;
-        else{
-            if(strcmp(buf,fine)!=0 && strcmp(buf,riga)!=0){
-                if(k == 1){         
-                    char* stampa = (char*)malloc(sizeof(char)*500); 
-                    buf[strlen(buf)-1] = 0;
+        printf("%s\n", percorso);
 
-                    strcpy(stampa,buf);
-                    int fine = 0;
 
-                    while(fine != 1){
-                        if(stampa[0] != '.'){
-                            fine = 1;                            
-                            printf("%s\n",stampa);
-                        }
-                        if(stampa[0] = '.' && stampa[1] == '.' && stampa[2] == '/')
-                            strcpy(stampa,stampa+3);
-                    }
-                    free(stampa);
-                    k = 0;
+        char fine[10] = "---fine--\n";
+        int s = 0;
+          /* Apro i due file */
+        char supp[10];
+
+        /* Leggo da un file e scrivo sull'altro */
+        while (s!=10 && (nread = read(op, buf, sizeof(buf)) > 0)){
+            if(buf[0] != fine[s]){
+                if(s>0){
+                    int i=0;
                 }
+                s=0;
+            }
+            else{
+                supp[s]=buf[0];
+                s++;
             }
         }
+        /* Chiudo i file e  modifico i permessi */
+        nread = read(op, buf, sizeof(buf));
+        percorso[0] = buf[0];
+        k = 1;
     }
+    close(op);
 }
