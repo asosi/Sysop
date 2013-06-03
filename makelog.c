@@ -53,6 +53,7 @@ void initlog(char* app, char* parametro1, char* parametro2, char* parametro3){
 				strcat(FILE, parametro3);
 			}
 		}
+		strcat(FILE,"\n");
 	}
 	else
 		strcat(FILE,"\n");
