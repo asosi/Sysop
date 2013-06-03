@@ -53,7 +53,7 @@ int main(int argc, char *argv[]){
     result = strtok( str, delims );
     char *nome = NULL;
     while( result != NULL ) {
-        printf( "result is \"%s\"\n", result );
+        //printf( "result is \"%s\"\n", result );
         nome = result;
         result = strtok( NULL, delims );
     }
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
         exit(EXIT_FAILURE);        
     }
 
-    
+
     if(nome[0]!='b'||nome[1]!='k'||nome[2]!='p'){
         writeERROR(argomento,"Estensione sbagliata nel file di archivio, deve essere .bkp");
         printf("Estensione sbagliata nel file di archivio, deve essere .bkp\n");        
