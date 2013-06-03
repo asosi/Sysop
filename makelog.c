@@ -12,30 +12,27 @@ void initlog(char* app){
 	chdir("/var/log/");
 	mkdir("utility", S_IRWXU|S_IRGRP|S_IXGRP);
 	chdir("utility");
-	chmod("/var/log/utility", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	chmod("/var/log/utility", 0777);
+	
 	char aggiusta[1024];
 	int k= 2;
-	while(k<strlen(app)){
-		aggiusta[k-2] = app[k];
-		k++;
-	}
-	if (mkdir(aggiusta, S_IRWXU|S_IRGRP|S_IXGRP) != 0){
-    	perror("FATAL ERROR");
-    	exit(EXIT_FAILURE);
-    }
+	strcpy(aggiusta,app+2);
+	mkdir(aggiusta, 0777);
     chdir(aggiusta);
     char file[1024];
-    strcat(file,aggiusta);
+    strcpy(file,aggiusta);
     strcat(file,".log");
-    FILE *open = fopen(file,"r");
-    if(open == NULL){
-    	printf("Creato il file di log %s in /var/log/utility/%s\n", file, app);
-    	fclose(open);
-    	FILE *open = fopen(file,"a");
-    	fclose(open);
+    FILE *openr = fopen(file,"r");
+    if(openr == NULL){
+    	printf("Creato il file di log %s in /var/log/utility/%s\n", file, aggiusta);
+    	printf("%s\n",file);
+    	FILE *openw = fopen(file,"a");
+    	fclose(openw);
+    	chmod(file, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		
     }
     else
-    	fclose(open);
+    	fclose(openr);
     chdir(cwd);
 }
 
@@ -49,17 +46,18 @@ void writeERROR(char* app, char *ERROR){
 	chdir(app);
 	char aggiusta[1024];
 	int k= 2;
-	while(app[k] != '\0'){
-		aggiusta[k-2] = app[k];
-	}
+	strcpy(aggiusta,app+2);
 	strcpy(nome,aggiusta);
 	strcat(nome,".log");
 	FILE *open = fopen(nome,"a");
 	time_t ora = time(NULL);
 	char ERRORE[1024];
-	strcat(ERRORE,asctime(localtime(&ora)));
+	fputs(asctime(localtime(&ora)),open);
+	strcpy(ERRORE,"ERROR: ");
 	strcat(ERRORE, "   ");
 	strcat(ERRORE, ERROR);
+	strcat(ERRORE,"\n");
 	fputs(ERRORE,open);
+	fputs("************************************************************\n",open);
 	fclose(open);	
 }
