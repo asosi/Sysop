@@ -125,6 +125,7 @@ int main(int argc, char *argv[]){
 		    }
     	}
     	else if(x == 1){ // Estraggo il file .bkp
+
             int first = open(percorsoDest,O_RDONLY);
             if(first==-1){
                 writeERROR(argomento,"Il file da estrarre (.bkp) non esite!!!");
@@ -339,6 +340,9 @@ void ScriviFile(int fromfd, char *from, char *to){
 
         //metto carattere di fine stringa al percorso
         percorso[k-1] = '\0';
+
+        if(percorso[0] == '/')
+            strcpy(percorso,percorso+1);
 
         //Creo tutte le cartelle e sottocartelle che ci sono nel percorso letto
         CreaPercorso(percorso);
