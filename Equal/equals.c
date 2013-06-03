@@ -50,6 +50,7 @@ int main (int argc,char* argv[]){
 		exit(EXIT_FAILURE);
   }
 	else{
+    printf("%s\n", argv[2]);
     initlog(argv[0],argv[1],argv[2],NULL);
     int firstISdir = isDir(argv[1]);
     int secondISdir = isDir(argv[2]);

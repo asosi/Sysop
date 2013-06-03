@@ -47,7 +47,7 @@ void initlog(char* app, char* parametro1, char* parametro2, char* parametro3){
 		{
 			strcat(FILE, " ");
 			strcat(FILE, parametro2);
-			if(parametro2 != NULL)
+			if(parametro3 != NULL)
 			{
 				strcat(FILE, " ");
 				strcat(FILE, parametro3);
