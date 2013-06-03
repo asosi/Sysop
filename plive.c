@@ -7,8 +7,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ncurses.h>
-#include "makelog.h"
+#include "makelog.h" //includo per generare file di log
 
+//stringa che mi contiene 
 char argomento[20];
 
 //struct per contenere dati processo
@@ -52,6 +53,7 @@ void movedir(char *dir){
 
     chdir(dir);
 
+    //ciclo ogni elemento della directory
     while((entry = readdir(dp)) != NULL) {
         lstat(entry->d_name,&statbuf);
 
@@ -85,7 +87,7 @@ void movedir(char *dir){
              || entry->d_name[0] == 'Z'){
                 continue;
             }
-
+        //controllo se è una cartella
         if(S_ISDIR(statbuf.st_mode)) {
             // Cerca una directory e ignora . e .. e se li trovo riparto con il ciclo
             if(strcmp(".",entry->d_name) == 0 || strcmp("..",entry->d_name) == 0 || entry->d_name[0] == '.'){
@@ -123,6 +125,8 @@ void infoproc(char *path){
     }
 
     chdir(path);
+
+    //ciclo ogni elemento della directory
     while((entry = readdir(des)) != NULL) {
         lstat(entry->d_name,&statbuf);
 
@@ -145,14 +149,14 @@ void infoproc(char *path){
                 // apro il file stat in lettura
                 gostatus = fopen("stat", "r");
 
-
+                //controllo se riesco ad aprire il file stat contenuto in /proc/<PID>/stat
                 if(!gostatus){
                     printf("Attenzione! Impossibile aprire il file /proc/%s/%s\n", entry->d_name, "stat");
                     writeERROR(argomento, "Attenzione! Impossibile aprire il file /proc/<PID>/stat");
                     exit(EXIT_FAILURE);
                 }
 
-                //File /proc/<PID>/stat contiene
+                //File /proc/<PID>/stat contiene:
                 //Posizione 1 : PID
                 //Posizione 2 : Nome dell' eseguibile del processo
                 //Posizione 4 : PPID
@@ -206,6 +210,7 @@ double calcpu(char *percorso){
     struct dirent *entry;
     struct stat statbuf;
 
+    //controllo se riesco ad aprire la directory
     if((dir2 = opendir(percorso)) == NULL) {
         printf("Attenzione! Impossibile aprire la directory /proc/\n");
         writeERROR(argomento, "Attenzione! Impossibile aprire la directory /proc/");
@@ -214,6 +219,7 @@ double calcpu(char *percorso){
 
     chdir(percorso);
 
+    //ciclo ogni elemento della directory
     while((entry = readdir(dir2)) != NULL) {
         lstat(entry->d_name,&statbuf);
         
@@ -225,9 +231,10 @@ double calcpu(char *percorso){
             //controllo se nella directory in cui mi trovo esiste un file chiamato "stat"
             if(strcmp("stat",entry->d_name) == 0){
 
-                // apro il file stat in lettura
+                //apro il file stat in lettura
                 gostat = fopen("stat", "r");
 
+                //controllo se riesco ad aprire il file stat in /proc/
                 if(!gostat){
                     printf("Attenzione! Impossibile aprire il file /proc/stat\n");
                     writeERROR(argomento, "Attenzione! Impossibile aprire il file /proc/stat");
@@ -277,7 +284,7 @@ void percpu(int nproc){
     //calcolo %CPU processo
     per = (pcpu / cpu_total)*100.0;
 
-    //inserimento valore
+    //inserimento valore nel campo percentuale della struct
     elenco[nproc]->percentuale = per;
 }
 
@@ -292,12 +299,13 @@ int main(int argc, char *argv[]){
     char car; //carattere preso dalla getch
     int timewait = 1;
 	strcpy(argomento,argv[0]);
+
+    //se lancio solo l'eseguibile (argc=1) allora passo alla initlog il valore NULL
 	if(argc == 1){
 		initlog(argomento, NULL,NULL,NULL);
 	}else{
 		initlog(argomento, argv[2],NULL,NULL);
 	}
-
     //getopt per passare il parametro -n <numero> , ovvero per mostrare "numero" processi
     while((ch = getopt (argc, argv, "n: ")) != -1){
         switch (ch){
@@ -311,14 +319,12 @@ int main(int argc, char *argv[]){
         	writeERROR(argomento, "Attenzione! Troppi parametri passati");
         	exit(EXIT_FAILURE); 
 	}
-	
-
     //caso default stampa 10 processi
     if(argv[1] == NULL){
         n++;
         valore="10";
     }
-    //
+    //controllo se il valore non è inserito
     if(n==0){
         printf("%s\n","Valore -n non passato! <eseguibile> -n <num>");
         writeERROR(argomento, "Attenzione! Inserimento sbagliato o valore -n <valore> non passato");
@@ -326,25 +332,26 @@ int main(int argc, char *argv[]){
     }else{
         //cast della stringa in intero
         numerop = atoi(valore);
-	
-	//mi serve per uscire se come parametro dopo -n mi passa dei caratteri
-	if(numerop == 0){
-		printf("%s\n","Passare un numero da 1 a 40 dopo -n");
-       		writeERROR(argomento, "Attenzione! Passare un numero da 1 a 40 dopo -n");
-        	exit(EXIT_FAILURE); 
-	}
+    	
+    	//mi serve per uscire se come parametro dopo -n mi passa dei caratteri
+    	if(numerop == 0){
+    		printf("%s\n","Passare un numero da 1 a 40 dopo -n");
+           	writeERROR(argomento, "Attenzione! Passare un numero da 1 a 40 dopo -n");
+            exit(EXIT_FAILURE); 
+    	}
+        //controllo che il numero n di processi da stampare non sia > 40 o < 0
     	if(numerop > 40 || numerop < 0){
-    		printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
+            printf("%s\n", "Attenzione! Si possono stampare al massimo 40 processi!");
             writeERROR(argomento, "Attenzione! Si possono stampare al massimo 40 processi");
-    		exit(EXIT_FAILURE);	
+    	    exit(EXIT_FAILURE);	
     	}else{
-			char output[256];
-		strcat(output,"Ho stampato a video ");
-		strcat(output, valore);
-		strcat(output," processi");
-		writeOUTPUT(argomento, output);
-	}
-
+            //creo stringa da inserire nel file log
+            char output[256];
+	        strcat(output,"Ho stampato a video ");
+	        strcat(output, valore);
+		    strcat(output," processi");
+		    writeOUTPUT(argomento, output);
+	    }
         do{
             initscr();
             printw("######################################################\n"); 
@@ -369,6 +376,7 @@ int main(int argc, char *argv[]){
         return 0;
     }
 }
+
 
 void stampaProcessi(int n){
     int i;
