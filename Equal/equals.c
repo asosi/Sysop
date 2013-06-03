@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
+#include "makelog.h"
 
 #define DIRECTORY 1
 #define FILE 0
@@ -25,6 +26,8 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
 int isDir(char* dir);
 int fileCompare(char* argv1, char* argv2);
 int isStampable(const char c);
+char argomento[20];
+
 
 int main (int argc,char* argv[]){
 
@@ -33,17 +36,21 @@ int main (int argc,char* argv[]){
 
   struct Object** contenuto1;
   struct Object** contenuto2;
-
+  strcpy(argomento,argv[0]);
 	if(argc < 3){
 		printf("Mancano argomenti! Passare due file o due cartelle!\n");
+    initlog(argv[0],NULL,NULL,NULL);
+    writeERROR(argv[0],"Mancano argomenti! Passare due file o due cartelle!");
 		exit(EXIT_FAILURE);
 	}	
 	else if(argc > 3){
 		printf("Troppi argomenti! Passare due file o due cartelle!\n");
+    initlog(argv[0],argv[1],argv[2],argv[3]);
+    writeERROR(argv[0],"Troppi argomenti! Passare due file o due cartelle!");
 		exit(EXIT_FAILURE);
   }
 	else{
-
+    initlog(argv[0],argv[1],argv[2],NULL);
     int firstISdir = isDir(argv[1]);
     int secondISdir = isDir(argv[2]);
     int allequal = 0;
@@ -65,6 +72,7 @@ int main (int argc,char* argv[]){
       if(!equal){
         allequal = 1;
         //-----------------stampo risultato-------------------------
+        //stampando i file che NON compaiono nell'altra directory
         int dim;
         if(dim1>dim2)
           dim = dim1;
@@ -82,6 +90,10 @@ int main (int argc,char* argv[]){
           }
         }
       }
+      if(allequal == 0)
+        writeOUTPUT(argomento,"File confrontati con successo. Sono uguali");
+      else
+        writeOUTPUT(argomento,"File confrontati con successo. Sono diversi");
       return allequal;
     }
 
@@ -90,10 +102,12 @@ int main (int argc,char* argv[]){
       int openf = open(argv[2],O_RDONLY);
       if(openf==NOT_EXIST){
         perror(argv[2]); //ritorno errore argv[2] inesistente
+        writeERROR(argv[0],"Secondo file inesistente");
         exit(EXIT_FAILURE);
       }
       else{
         printf("Il file %s è una directory, mentre il file %s è un file normale\n", argv[1], argv[2]);
+        writeERROR(argomento,"File confrontati con successo. Sono di tipo diverso");
         return 1;
       }
     }
@@ -103,10 +117,12 @@ int main (int argc,char* argv[]){
       int openf = open(argv[1],O_RDONLY);
       if(openf==NOT_EXIST){
         perror(argv[1]); //ritorno errore argv[1] inesistente
+        writeERROR(argv[0],"Primo file inesistente");
         exit(EXIT_FAILURE);
       }
       else{
         printf("Il file %s è un file normale, mentre il file %s è una directory\n", argv[1], argv[2]);
+        writeERROR(argomento,"File confrontati con successo. Sono di tipo diverso");
         return 1;
       }
     }
@@ -119,13 +135,17 @@ int main (int argc,char* argv[]){
           printf("I file %s e %s sono diversi\n", argv[1], argv[2]);
         allequal = 1;
       }
+      if(allequal == 0)
+        writeOUTPUT(argomento,"File confrontati con successo. Sono uguali");
+      else
+        writeOUTPUT(argomento,"File confrontati con successo. Sono diversi");
       return allequal;
     }
   }
   //----------------------------------------------------------
 }
 
-//scruta la directory aggiungendo "/" al nome di una cartella, "." al nome di un file
+//scruta la directory settando il tipo. find viene settato a false
 struct Object** scrutadir(char *dir, int* dim){
     int i=0;
     DIR *dp;
@@ -133,6 +153,7 @@ struct Object** scrutadir(char *dir, int* dim){
     struct stat statbuf;
     if((dp = opendir(dir)) == NULL) {
         perror(dir);
+        writeERROR(argomento,"Impossibile aprire la cartella");
         return;
     }
     chdir(dir);
@@ -179,27 +200,32 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
       for(i=0; i<dim1; i++){
         k=0;
         while(k<dim2){
+          //confronto i file che hanno lo stesso nome nelle 2 directory
+          //caso cartella----cartella----stesso nome
             if(strcmp(contenuto1[i]->nome,contenuto2[k]->nome)==0){
               if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == DIRECTORY){
                 contenuto1[i]->find = FIND;
                 contenuto2[k]->find = FIND;
                 k=dim2;
               }
-              else if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == FILE){
-                contenuto1[i]->find = FIND;
-                contenuto2[k]->find = FIND;
-                printf("Il file %s in %s è una directory, mentre il file %s in %s è un file normale\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
-                k=dim2;
-                allequal = 0;
-              }
-              else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == DIRECTORY){
-                contenuto1[i]->find = FIND;
-                contenuto2[k]->find = FIND;
-                printf("Il file %s in %s è un file normale, mentre il file %s in %s è una directory\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
-                k=dim2;
-                allequal = 0;
-              }
-              else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == FILE){
+            //caso cartella----file----stesso nome
+            else if(contenuto1[i]->tipo == DIRECTORY && contenuto2[k]->tipo == FILE){
+              contenuto1[i]->find = FIND;
+              contenuto2[k]->find = FIND;
+              printf("Il file %s in %s è una directory, mentre il file %s in %s è un file normale\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
+              k=dim2;
+              allequal = 0;
+            }
+            //caso file----cartella----stesso nome
+            else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == DIRECTORY){
+              contenuto1[i]->find = FIND;
+              contenuto2[k]->find = FIND;
+              printf("Il file %s in %s è un file normale, mentre il file %s in %s è una directory\n", contenuto1[i]->nome, a1, contenuto2[k]->nome, a2);
+              k=dim2;
+              allequal = 0;
+            }
+            //caso file----file----stesso nome
+            else if(contenuto1[i]->tipo == FILE && contenuto2[k]->tipo == FILE){
                 contenuto1[i]->find = FIND;
                 contenuto2[k]->find = FIND;
                 char path1[1024];
@@ -230,7 +256,7 @@ int trova(struct Object** contenuto1, struct Object** contenuto2, int dim1, int 
       allequal=0;
     return allequal;
 }
-
+//guarda se dir é una directory....in tal caso ritorna DIRECTORY, else FILE
 int isDir(char* dir){
     int type = DIRECTORY;
     DIR *dp;
@@ -242,7 +268,7 @@ int isDir(char* dir){
       closedir(dp);
     return type;
 }
-
+//confronta due file, stampa le differtenze se sono stampabili
 int fileCompare(char* argv1, char* argv2){
     int first = open(argv1,O_RDONLY);
     int second = open(argv2,O_RDONLY);
@@ -253,12 +279,16 @@ int fileCompare(char* argv1, char* argv2){
 
     if(first==NOT_EXIST){
       perror(argv1); //ritorno errore argv1 inesistente
-      if(second==NOT_EXIST)
+      writeERROR(argomento,"Primo parametro inesistente");
+      if(second==NOT_EXIST){
         perror(argv2); //ritorno errore argv2 inesistente
-      exit(EXIT_FAILURE);
+        writeERROR(argomento,"Parametri inesistenti");
+        exit(EXIT_FAILURE);
+      }
     }
     if(second==NOT_EXIST){
       perror(argv2); //ritorno errore argv2 inesistente
+      writeERROR(argomento,"Secondo parametro inesistente");
       exit(EXIT_FAILURE);
     }
     if(first!=NOT_EXIST && second!= NOT_EXIST){
@@ -277,6 +307,7 @@ int fileCompare(char* argv1, char* argv2){
       int canstamp=1;
       canread1 = read(first,ch1,1);
       canread2 = read(second,ch2,1);
+      //controllo bit a bit
       while(canread1>0 && canread2>0 && !(equal == 0 && canstamp == 0)){
         if(ch1[0]!=ch2[0]){
           equal=0;
@@ -292,6 +323,7 @@ int fileCompare(char* argv1, char* argv2){
       }
       dim1=h-1;
       dim2=h-1;
+      //se file1 è in eccesso salvo altri caratteri
       if(canread1>0){
         equal=0;
         while(canread1>0 && canstamp != 0){
@@ -303,6 +335,7 @@ int fileCompare(char* argv1, char* argv2){
         }
         dim1 = h;
       }
+      //se file2 è in eccesso salvo altri caratteri
       if(canread2>0){
         equal=0;
         while(canread2>0 && canstamp != 0){
@@ -340,6 +373,7 @@ int fileCompare(char* argv1, char* argv2){
     }
 }
 
+//ritorna 1 se i caratteri sono stampabili, altrimenti 0
 int isStampable(const char c){
   int stamp =1;
   if(c<32){
