@@ -1,7 +1,7 @@
 Sysop
 =====
 
-Repo privata per il progetto di Sysop
+Repo per il progetto di Sysop
 
 ######################################################################
 
